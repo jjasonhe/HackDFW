@@ -7,38 +7,6 @@
 #include "GUI.h"
 //#include "Font.h"
 
-/* Adapted from SDL's testspriteminimal.c */
-Sprite LoadSprite(const char* file, SDL_Renderer* renderer)
-{
-    Sprite result;
-    result.texture = nullptr;
-    result.position.w = 0;
-    result.position.h = 0;
-    result.position.x = 0;
-    result.position.y = 0;
-    result.scale = 1.f;
-    result.angle = 0.f;
-
-    SDL_Surface* tSurf = IMG_Load(file);
-    if (tSurf == nullptr)
-    {
-        fprintf(stderr, "Couldn't load %s: %s\n", file, SDL_GetError());
-        return result;
-    }
-    result.position.w = tSurf->w;
-    result.position.h = tSurf->h;
-
-    result.texture = SDL_CreateTextureFromSurface(renderer, tSurf);
-    if (!result.texture) {
-        fprintf(stderr, "Couldn't create texture: %s\n", SDL_GetError());
-        SDL_FreeSurface(tSurf);
-        return result;
-    }
-    SDL_FreeSurface(tSurf);
-
-    return result;
-}
-
 bool Sprite::draw(){
     int w,h;
     SDL_GetWindowSize(window, &w, &h);
@@ -84,7 +52,6 @@ bool SelectionBox::draw(){
         else{
             SDL_SetRenderDrawColor(renderer, boxColor.r, boxColor.g, boxColor.b, boxColor.a);
             SDL_RenderFillRect(renderer, &position);
-            SDL_RenderCopy(renderer, gradient, nullptr, &position);
         }
     }
     bool tb = false;
@@ -114,6 +81,15 @@ bool SelectionBox::draw(){
     if(tb){
         textPos.w = textPos.h = 0;
     }
+}
+
+template<class T>
+int sgn(T num){
+    if (num > 0)
+        return 1;
+    if (num < 0)
+        return -1;
+    return 0;
 }
 
 bool HList::draw(){

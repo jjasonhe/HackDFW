@@ -25,7 +25,9 @@ LOCAL_SRC_FILES += main.cpp
 
 LOCAL_SRC_FILES += EventController.cpp
 
-LOCAL_SRC_FILES += example.cpp
+LOCAL_SRC_FILES += Views.cpp
+
+LOCAL_SRC_FILES += GUI.cpp
 
 LOCAL_SRC_FILES += Billing/ph_os_android_callbacks.cpp
 
@@ -37,13 +39,13 @@ LOCAL_SRC_FILES += SocialNetworks/CallbacksAndroid.cpp
 
 LOCAL_SRC_FILES += SocialNetworks/XFacebookAndroid.cpp
 
-LOCAL_SRC_FILES += SocialNetworks/XGooglePlus.cpp
+#LOCAL_SRC_FILES += SocialNetworks/XGooglePlus.cpp
 
-LOCAL_SRC_FILES += SocialNetworks/XGooglePlusAndroid.cpp
+#LOCAL_SRC_FILES += SocialNetworks/XGooglePlusAndroid.cpp
 
 LOCAL_SRC_FILES += Bluetooth/XBluetoothAndroid.cpp
 
-LOCAL_SRC_FILES += Location/XLocationAndroid.cpp
+#LOCAL_SRC_FILES += Location/XLocationAndroid.cpp
 
 LOCAL_SRC_FILES += Notifications/XNotificationAndroid.cpp
 

@@ -2,6 +2,7 @@
 #define _VIEW_H_
 
 #include <vector>
+#include <memory>
 #include "EventProcessor.h"
 
 //! Views are a generic version of the update and draw functions

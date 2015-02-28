@@ -12,12 +12,13 @@
 #include "SDL_image.h"
 
 #include "main.h"
-#include "example.h"
+#include "View.h"
+#include "Views.h"
 #include "SocialNetworks/XFacebook.h"
-#include "SocialNetworks/XGooglePlus.h"
+//#include "SocialNetworks/XGooglePlus.h"
 #include "Bluetooth/XBluetooth.h"
 #include "HTTP/XHTTP.h"
-#include "Location/XLocation.h"
+//#include "Location/XLocation.h"
 #include "Notifications/XNotification.h"
 
 SDL_Window *window;

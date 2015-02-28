@@ -84,29 +84,6 @@ public:
 	}
 };
 
-class FMotionEventProcessor : public EventProcessor{
-protected:
-	SelectView* myView;
-	int wait;
-	int countA;
-	SDL_Rect screen;
-
-public:
-	FMotionEventProcessor(EventController* controller, SelectView* that, SDL_Rect selArea)
-	: EventProcessor(controller, SDL_FINGERMOTION), myView(that), wait(256), countA(0), screen(selArea)
-	{}
-
-	virtual bool process(SDL_Event &event){
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
-		SDL_Point xy = {static_cast<int>(event.tfinger.x*w), static_cast<int>(event.tfinger.y*h)};
-		if(!enclosedPoint(xy, myView->friends.position)){
-			if(enclosedPoint(xy, screen)) myView->cardList.moveElements(-3*w*event.tfinger.dx, 0);
-		}
-		return true;
-	}
-};
-
 class FVMotionEventProcessor : public EventProcessor{
 protected:
 	VList* myList;

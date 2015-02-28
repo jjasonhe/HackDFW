@@ -3,10 +3,12 @@
 
 #include "View.h"
 #include "main.h"
+#include "SDL.h"
+#include "GUI.h"
 
 class LoadingView : public View {
 public:
-	EventController* myController;
+    int w,h;
 	SDL_Texture* screen;
 	int begtime;
 	Sprite loadingWheel;
@@ -25,8 +27,12 @@ public:
 };
 
 class WelcomeView : public View{
+protected:
+    EventController* myController;
+    SDL_Texture* screen;
+
 public:
-    WelcomeView();
+    WelcomeView(EventController* controller);
     ~WelcomeView();
 
     bool activate();

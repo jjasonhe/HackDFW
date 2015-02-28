@@ -14,13 +14,13 @@ def buildAndroid():
 	os.chdir('android')
 	if subprocess.call('android update project --path '+os.getcwd(), shell = True) != 0:
 		return -1
-	os.chdir('facebook-android-sdk/facebook')
-	if subprocess.call('android update project --path '+os.getcwd()+' --target android-12', shell = True) != 0:
-		return -1
-	os.chdir('../../google-play-services_lib')
-	if subprocess.call('android update project --path '+os.getcwd()+' --target android-12', shell = True) != 0:
-		return -1
-	os.chdir('../')
+#	os.chdir('facebook-android-sdk/facebook')
+#	if subprocess.call('android update project --path '+os.getcwd()+' --target android-12', shell = True) != 0:
+#		return -1
+#	os.chdir('../../google-play-services_lib')
+#	if subprocess.call('android update project --path '+os.getcwd()+' --target android-12', shell = True) != 0:
+#		return -1
+#	os.chdir('../')
 	if subprocess.call('ndk-build -j8', shell=True) != 0:
 		return -1
 	subprocess.call('ant debug install', shell=True)

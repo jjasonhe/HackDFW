@@ -208,6 +208,12 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Blended(TTF_Font *font,
                 const Uint16 *text, SDL_Color fg);
 
 
+typedef struct textBack{
+    SDL_Color color;
+    int first;
+    int second;
+} textBack;
+
 /* Create a 32-bit ARGB surface and render the given text at high quality,
    using alpha blending to dither the font with the given color.
    Text is wrapped to multiple lines on line endings and on word boundaries
@@ -218,6 +224,9 @@ extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderText_Blended_Wrapped(TTF_Font *f
                 const char *text, SDL_Color fg, Uint32 wrapLength);
 extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUTF8_Blended_Wrapped(TTF_Font *font,
                 const char *text, SDL_Color fg, Uint32 wrapLength);
+SDL_Surface * TTF_RenderUTF8_Blended_WrappedColored(TTF_Font *font,
+                                    const char *text, SDL_Color fg, Uint32 wrapLength,
+                                    textBack* bg, int size);
 extern DECLSPEC SDL_Surface * SDLCALL TTF_RenderUNICODE_Blended_Wrapped(TTF_Font *font,
                 const Uint16 *text, SDL_Color fg, Uint32 wrapLength);
 

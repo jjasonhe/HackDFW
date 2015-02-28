@@ -4,15 +4,24 @@
 #include "View.h"
 #include "main.h"
 
-class LoadingView : public View{
+class LoadingView : public View {
 public:
-    LoadingView();
-    ~LoadingView
+	EventController* myController;
+	SDL_Texture* screen;
+	int begtime;
+	Sprite loadingWheel;
 
-    bool activate();
-    bool updateWorld();
-    bool drawWorld();
-    bool deactivate();
+	LoadingView(EventController* controller);
+
+    virtual bool activate();
+    virtual bool updateWorld();
+    virtual bool drawWorld();
+    virtual bool deactivate();
+
+    virtual ~LoadingView(){
+        if(screen) SDL_DestroyTexture(screen);
+        screen = nullptr;
+    }
 };
 
 class WelcomeView : public View{

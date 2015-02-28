@@ -122,13 +122,12 @@ int main(int argc, char *argv[])
 
     uid = getUID();
 
-    views.push_back(make_shared<SpriteView>(&viewController));
+    views.push_back(make_shared<WelcomeView>(&viewController));
 
 	int millis = SDL_GetTicks();
 	while(!views.empty()){
         if(!views[0]->activated) views[0]->activate();
         bool cont = true;
-        XNotification anotif("mygame.bmp", "MyGame", "We switched our view", true);
         while(cont){
             SDL_RenderClear(renderer);
             millis = SDL_GetTicks();

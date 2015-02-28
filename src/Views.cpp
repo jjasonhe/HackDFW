@@ -28,3 +28,34 @@ bool LoadingView::drawWorld(){
 
     return !done;
 }
+
+bool LoadingView::updateWorld(){
+    if(!activated) return false;
+    SDL_Delay(15);
+    static int counting;
+    if (!counting) loadingWheel.angle += 30.f;
+    counting = ++counting % 5;
+    if(!loading){
+        //views.push_back(new GamesView(myController));
+        done = true;
+    }
+    return !done;
+}
+
+WelcomeView::WelcomeView(){
+}
+
+WelcomeView::~WelcomeView(){
+}
+
+bool WelcomeView::activate(){
+}
+
+bool WelcomeView::updateWorld(){
+}
+
+bool WelcomeView::drawWorld(){
+}
+
+bool WelcomeView::deactivate{
+}

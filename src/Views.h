@@ -56,4 +56,24 @@ class InfoView : public View{
     bool deactivate();
 };
 
+class CurLocationOverlay : public Overlay{
+    CurLocationOverlay();
+    ~CurLocationOverlay();
+
+    bool activate();
+    bool updateWorld();
+    bool drawWorld();
+    bool deactivate();
+};
+
+class DestLocationOverlay : public Overlay{
+    DestLocationOverlay();
+    ~DestLocationOverlay();
+
+    bool activate();
+    bool updateWorld();
+    bool drawWorld();
+    bool deactivate();
+};
+
 #endif // _VIEWS_H_

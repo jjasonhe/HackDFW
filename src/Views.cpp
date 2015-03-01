@@ -85,7 +85,8 @@ WelcomeView::~WelcomeView(){
 }
 
 bool WelcomeView::activate(){
-    views.push_back(std::make_shared<LoadingView>(myController));
+    views.push_back(std::make_shared<CurLocationView>(myController));
+    myEvents.push_back(std::make_shared<SwipeDownEventProcesor>(myController, this));
     myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
 }
 
@@ -221,7 +222,6 @@ bool DestLocationView::updateWorld(){
 
 bool DestLocationView::drawWorld(){
     SDL_RenderCopy(renderer,screen,nullptr,nullptr);
-    textBox.draw();
     submit.draw();
     for(auto& r : buttons) {
         r.draw();
@@ -233,5 +233,8 @@ bool DestLocationView::drawWorld(){
 
 bool DestLocationView::deactivate(){
     SDL_StopTextInput();
-    dest = textBox.text + textBox.composition;
+    for(auto& r : buttons){
+        if (r.selected)
+            dest = r.text;
+    }
 }

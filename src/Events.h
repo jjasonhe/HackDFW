@@ -59,6 +59,29 @@ public:
 	}
 };
 
+class SwipeDownEventProcesor : public EventProcessor{
+protected:
+	View *myView;
+	SDL_Point lastcoord;
+
+public:
+	SwipeDownEventProcesor(EventController* controller, View *other)
+	: EventProcessor(controller, SDL_FINGERUP), myView(other), lastcoord{0,0}
+	{ myController->registerEvent(this, SDL_FINGERDOWN); }
+
+	virtual bool process(SDL_Event &event){
+		int w,h;
+		SDL_GetWindowSize(window, &w, &h);
+
+		SDL_Point point = {static_cast<int>(event.tfinger.x*w), static_cast<int>(event.tfinger.y*h)};
+		if(event.type == SDL_FINGERDOWN) lastcoord = point;
+		else if ((lastcoord.x - point.x) > w/4){
+			myView->done = true;
+        }
+        return true;
+	}
+};
+
 class SelSwipeEventProcesor : public EventProcessor{
 protected:
 	SelectionBox *myBox;

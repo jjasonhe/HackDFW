@@ -74,10 +74,10 @@ int loadFlights(void* data){
     HTTPRequest req("https://api.test.sabre.com/v1/shop/flights/fares");
     req.addURI("origin", source[0].asString());
     req.addURI("earliestdeparturedate", "2015-03-02");
-    req.addURI("latestdeparturedate", "2015-03-05");
+    req.addURI("latestdeparturedate", "2015-03-06");
     req.addURI("lengthofstay", "5");
     req.addURI("theme", dest);
-    req.addURI("topdestinations", "15");
+    req.addURI("topdestinations", "25");
     req.addURI("pointofsalecountry", "US");
     req.setHeader("Authorization: Bearer Shared/IDL:IceSess\/SessMgr:1\.0.IDL/Common/!ICESMS\/ACPCRTD!ICESMSLB\/CRT.LB!-0123456789012345678!123456!0!ABCDEFGHIJKLM!E2E-1");
     req.sendRequest((std::string(pref_path)+"/flights.json").c_str());

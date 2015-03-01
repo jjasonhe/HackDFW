@@ -74,6 +74,7 @@ Json::Value cityFromQuery(std::string query){
     reader.parse(d, retValue);
 
     return retValue;
+
 }
 
 int loadWeather(std::string xlocation){

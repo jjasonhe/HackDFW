@@ -72,9 +72,9 @@ bool SelectionBox::draw(){
                 int iW, iH;
                 SDL_QueryTexture(texture, nullptr, nullptr, &iW, &iH);
                 SDL_Rect destRect;
-                if(centered) destRect = {textPos.x + (textPos.w - iW)/2, textPos.y + (textPos.h - iH)/2, std::min(iW, textPos.w), std::min(iH, textPos.h)};
-                else if(right) destRect = {textPos.x + textPos.w - iW, textPos.y, iW, std::min(iH, textPos.h)};
-                else destRect = {textPos.x, textPos.y, std::min(iW, textPos.w), std::min(iH, textPos.h)};
+                //if(centered) destRect = {textPos.x + (textPos.w - iW)/2, textPos.y + (textPos.h - iH)/2, std::min(iW, textPos.w), std::min(iH, textPos.h)};
+                //else if(right) destRect = {textPos.x + textPos.w - iW, textPos.y, iW, std::min(iH, textPos.h)};
+                destRect = {textPos.x, textPos.y, std::min(iW, textPos.w), std::min(iH, textPos.h)};
                 SDL_Rect srcRect = {0, 0, std::min(iW, textPos.w), std::min(iH, textPos.h)};
                 SDL_RenderCopy(renderer, texture, &srcRect, &destRect);
                 SDL_DestroyTexture(texture);

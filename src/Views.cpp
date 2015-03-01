@@ -324,6 +324,14 @@ bool FlightView::activate(){
     TTF_Font* tFont = TTF_OpenFont("Font.otf", h/32);
     for(int i=0; i<flightValues["FareInfo"].size(); i++){
         FlightCard* tCard = new FlightCard;
+        std::istringstream d(flightValues["FareInfo"][i]["LowestNonStopFare"].asString());
+        int tInt;
+        d >> tInt;
+        if (tInt == 0) continue;
+        tCard->nonStop = tInt;
+        std::istringstream e(flightValues["FareInfo"][i]["LowestFare"].asString());
+        e >> tInt;
+        tCard->price = tInt;
         tCard->font = tFont;
         tCard->position = {w/3 + i*w, h/4, 2*w/3, 3*h/4};
         tCard->depFrom = cityFromCode(flightValues["FareInfo"][i]["OriginLocation"].asString());
@@ -334,13 +342,6 @@ bool FlightView::activate(){
         std::string tDate2 = flightValues["FareInfo"][i]["ReturnDateTime"].asString();
         int pos2 = tDate2.find("T");
         tCard->retDate = tDate2.substr(0, pos2);
-        std::istringstream d(flightValues["FareInfo"][i]["LowestNonStopFare"].asString());
-        int tInt;
-        d >> tInt;
-        tCard->nonStop = tInt;
-        std::istringstream e(flightValues["FareInfo"][i]["LowestFare"].asString());
-        e >> tInt;
-        tCard->price = tInt;
         cardList.elements.push_back(tCard);
         myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, tCard));
     }
@@ -397,6 +398,9 @@ bool FlightView::updateWorld(){
         std::sort(cardList.elements.begin(), cardList.elements.end(), comparePriceNonStop);
         cardList.select = 0;
         nonstop.selected = false;
+    }
+    else if(submit.selected){
+        views.push_back(std::make_shared<WelcomeView>(myController));
     }
 
     return !(done || submit.selected);
@@ -480,6 +484,7 @@ bool TimeSpentView::drawWorld(){
 
 bool TimeSpentView::deactivate(){
     SDL_DetachThread(SDL_CreateThread(loadFlights, "LoadFlights", nullptr));
+    SDL_Delay(15);
     for(int i=0; i<5; i++)
         if(boxes[i].selected)
             numDays = Json::valueToString(i);
@@ -509,7 +514,7 @@ bool InfoView::activate(){
     std::string tString = cityFromCode(flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][layovers-1]["ArrivalAirport"]["LocationCode"].asString());
     loadWeather(tString);
     fctext.text = weatherValues["forecast"]["txt_forecast"]["forecastday"][0]["fcttext"].asString();
-    fctext.position = {w/3, 3*h/4, 43*w/72, 4*h/25};
+    fctext.position = {w/3, 3*h/4, 2*w/3, h/4};
     fctext.font = TTF_OpenFont("Font.otf", h/32);
     fctext.textColor = SDL_Color{0xFF, 0xFF, 0xFF, 0xFF};
     fctext.drawBox = false;
@@ -546,7 +551,8 @@ bool InfoView::activate(){
 
     flightNumbers.position = {5*w/24, 23*h/128, 7*w/12, 13*h/128};
     for(int i=0; i<2*layovers - bad; i++){
-        flightNumbers.text += flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][i]["FlightNumber"].asString() + ' ';
+        flightNumbers.text += flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][i]["OperatingAirline"]["Code"].asString() + ' ';
+        flightNumbers.text += flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][i]["OperatingAirline"]["FlightNumber"].asString() + ' ';
     }
     flightNumbers.font = fctext.font;
     flightNumbers.textColor = fctext.textColor;

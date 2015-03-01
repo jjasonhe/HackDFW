@@ -1,5 +1,7 @@
 #include "Views.h"
 #include "Events.h"
+#include "main.h"
+#include "SDL_image.h"
 #include <memory>
 
 Sprite LoadSprite(const char* file, SDL_Renderer* renderer)
@@ -16,7 +18,7 @@ Sprite LoadSprite(const char* file, SDL_Renderer* renderer)
     SDL_Surface* temp;
 
     /* Load the sprite image */
-    temp = SDL_LoadBMP(file);
+    temp = IMG_Load(file);
     if (temp == NULL)
 	{
         fprintf(stderr, "Couldn't load %s: %s\n", file, SDL_GetError());
@@ -38,9 +40,9 @@ Sprite LoadSprite(const char* file, SDL_Renderer* renderer)
 }
 
 LoadingView::LoadingView(EventController* controller)
-	: begtime(0), loadingWheel(LoadSprite("loading.png", renderer))
+	: begtime(0), loadingWheel(LoadSprite("loadingWheel.png", renderer))
 {
-    screen = loadImage("screen.bmp");
+    screen = loadImage("loadingScreen.png");
     SDL_GetWindowSize(window, &w, &h);
     loadingWheel.position = {7*w/16, 3*h/4, w/8, w/8};
 }
@@ -56,9 +58,8 @@ bool LoadingView::deactivate(){
 }
 
 bool LoadingView::drawWorld(){
-    if(!activated) return false;
+    if(!screen) return false;
     SDL_RenderCopy(renderer, screen, nullptr, nullptr);
-
     loadingWheel.draw();
 
     return !done;
@@ -68,7 +69,7 @@ bool LoadingView::updateWorld(){
     if(!activated) return false;
     SDL_Delay(15);
     static int counting;
-    if(SDL_GetTicks() - begtime > 1000) return false;
+    if(SDL_GetTicks() - begtime > 2500) return false;
     if (!counting) loadingWheel.angle += 30.f;
     counting = ++counting % 5;
     return !done;
@@ -136,6 +137,8 @@ bool CurLocationView::drawWorld(){
 }
 
 bool CurLocationView::deactivate(){
+    SDL_StopTextInput();
+    start = textBox.text + textBox.composition;
 }
 
 DestLocationView::DestLocationView(EventController* controller)
@@ -143,9 +146,11 @@ DestLocationView::DestLocationView(EventController* controller)
 {
     int w,h;
     SDL_GetWindowSize(window, &w, &h);
-    textBox.position = {w/8, h/2, 3*w/4, h/16};
+    textBox.position = {w/8, h/2, 5*w/8, h/16};
     textBox.box = loadImage("textBox.png");
     textBox.font = TTF_OpenFont("Font.otf", h/32);
+    plusBox.box = loadImage("plus.png");
+    plusBox.position = {3*w/4, h/2, w/8, h/16};
 }
 
 DestLocationView::~DestLocationView(){
@@ -158,6 +163,7 @@ bool DestLocationView::activate(){
     myEvents.push_back(std::make_shared<InFDownEventProcesor>(myController, &textBox));
     myEvents.push_back(std::make_shared<InKeyEventProcessor>(myController, &textBox));
     myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
+    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &plusBox));
 }
 
 bool DestLocationView::updateWorld(){
@@ -167,9 +173,12 @@ bool DestLocationView::updateWorld(){
 bool DestLocationView::drawWorld(){
     SDL_RenderCopy(renderer,screen,nullptr,nullptr);
     textBox.draw();
+    plusBox.draw();
 
     return !done;
 }
 
 bool DestLocationView::deactivate(){
+    SDL_StopTextInput();
+    dest = textBox.text + textBox.composition;
 }

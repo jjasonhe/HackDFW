@@ -11,6 +11,7 @@
 #include "EventController.h"
 #include "EventProcessor.h"
 #include "View.h"
+#include "json/json.h"
 
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
@@ -25,6 +26,9 @@ extern EventController viewController;
 extern EventController overlayController;
 extern std::string uid;
 extern std::string xClassPath;
+extern Json::Value flights;
+extern std::string start;
+extern std::string dest;
 
 template <class T>
 struct callReturn{

@@ -17,7 +17,7 @@ protected:
 
 public:
     std::string host;
-    
+
     HTTPRequest(std::string path) : url(path) {}
 
     void addURI(std::string parameter, std::string value){

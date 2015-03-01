@@ -5,6 +5,8 @@
 #include <vector>
 #include <deque>
 #include <sstream>
+#include <iostream>
+#include <fstream>
 
 #include "SDL.h"
 #include "SDL_ttf.h"
@@ -34,8 +36,39 @@ EventController viewController;
 EventController overlayController;
 std::string uid;
 std::string xClassPath = "com/myapp/game/MyGame";
+Json::Value flights;
+std::string start;
+std::string dest;
+int lastmove;
+
+size_t write_data(void *ptr, size_t size, size_t nmemb, void* stream){
+    size_t written;
+    written = fwrite(ptr, size, nmemb, (FILE*)stream);
+    return written;
+}
+
+Json::Value codeFromString(std::string name){
+    HTTPRequest req("http://airportcode.riobard.com/search");
+    req.addURI("q", name);
+    req.addURI("fmt", "JSON");
+    req.sendRequest((std::string(pref_path)+"/airport.json").c_str());
+
+    Json::Reader reader;
+    std::ifstream d(std::string(pref_path)+"/airport.json");
+    Json::Value retValue, loadValue;
+    reader.parse(d, loadValue);
+
+    for(int i=0; i<loadValue.size(); i++){
+        retValue[i] = loadValue[i]["code"];
+    }
+
+    return retValue;
+}
 
 int loadAirport(void* data){
+    Json::Value dests = codeFromString(dest), source = codeFromString(start);
+
+    HTTPRequest req("");
 }
 
 SDL_Texture* loadImage(const char* path){
@@ -101,6 +134,16 @@ std::string to_string(T value)
         return to_string(rand());
     }
 #endif //__ANDROID_API__
+
+std::string url_encode(std::string value){
+    for (size_t pos = value.find(' ');
+         pos != std::string::npos;
+         pos = value.find(' ', pos))
+    {
+        value.replace(pos, 1, "%20");
+    }
+    return value;
+}
 
 using namespace std;
 

@@ -49,8 +49,11 @@ LOCAL_SRC_FILES += Bluetooth/XBluetoothAndroid.cpp
 
 LOCAL_SRC_FILES += Notifications/XNotificationAndroid.cpp
 
+LOCAL_SRC_FILES += jsoncpp.cpp
+
 LOCAL_SHARED_LIBRARIES := SDL2 SDL2_mixer SDL2_ttf SDL2_net SDL2_image gpg-1
 
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog
+LOCAL_LDLIBS += -L$(LOCAL_PATH)/../ -lssl -lcrypto -lz -lcurl
 
 include $(BUILD_SHARED_LIBRARY)

@@ -517,14 +517,14 @@ bool InfoView::activate(){
     icon.position = {5*w/72, 3*h/4, 13*w/50, 4*h/25};
     icon.box = loadURLImage(weatherValues["forecast"]["txt_forecast"]["forecastday"][0]["icon_url"].asString(), std::string(pref_path) + weatherValues["forecast"]["txt_forecast"]["forecastday"][0]["icon"].asString());
 
-    departTime.position = {w/2, 3*h/8, w/2, 5*h/128};
+    departTime.position = {w/2, 3*h/8, w/2, h/10};
     departTime.text = flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][layovers-1]["DepartureDateTime"].asString();
     std::replace(departTime.text.begin(), departTime.text.end(), 'T', '\n');
     departTime.font = fctext.font;
     departTime.textColor = fctext.textColor;
     departTime.drawBox = false;
 
-    arrivalTime.position = {0, 3*h/8, 7*w/16, 4*h/25};
+    arrivalTime.position = {0, 3*h/8, w/2, h/10};
     arrivalTime.text = flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][layovers-1]["ArrivalDateTime"].asString();
     std::replace(arrivalTime.text.begin(), arrivalTime.text.end(), 'T', '\n');
     arrivalTime.font = fctext.font;
@@ -532,7 +532,7 @@ bool InfoView::activate(){
     arrivalTime.drawBox = false;
 
     layover.position = {5*w/36, 9*h/16, 7*w/24, 5*h/128};
-    layover.text = Json::valueToString(layovers);
+    layover.text = Json::valueToString(layovers)+ " hours";
     layover.font = fctext.font;
     layover.textColor = fctext.textColor;
     layover.drawBox = false;

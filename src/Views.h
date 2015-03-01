@@ -62,9 +62,15 @@ class InfoView : public View{
     bool deactivate();
 };
 
-class CurLocationOverlay : public Overlay{
-    CurLocationOverlay();
-    ~CurLocationOverlay();
+class CurLocationView : public View{
+protected:
+    EventController* myController;
+    InputBox textBox;
+    SDL_Texture* screen;
+
+public:
+    CurLocationView(EventController* myController);
+    ~CurLocationView();
 
     bool activate();
     bool updateWorld();
@@ -72,9 +78,15 @@ class CurLocationOverlay : public Overlay{
     bool deactivate();
 };
 
-class DestLocationOverlay : public Overlay{
-    DestLocationOverlay();
-    ~DestLocationOverlay();
+class DestLocationView : public View{
+protected:
+    EventController* myController;
+    InputBox textBox;
+    SDL_Texture* screen;
+
+public:
+    DestLocationView(EventController* myController);
+    ~DestLocationView();
 
     bool activate();
     bool updateWorld();

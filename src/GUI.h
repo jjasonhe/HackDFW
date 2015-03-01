@@ -35,6 +35,7 @@ public:
 	std::string composition;
 	SDL_Color background, textcolor;
 	bool active;
+	SDL_Texture* box;
 
 	InputBox()
     : background{0xFF, 0xFF, 0xFF, 0xFF}, textcolor{0x00, 0x00, 0x00, 0xFF}, active(false)

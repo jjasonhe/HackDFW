@@ -46,6 +46,8 @@ LoadingView::LoadingView(EventController* controller)
 }
 
 bool LoadingView::activate(){
+    views.push_back(std::make_shared<CurLocationView>(&viewController));
+    begtime = SDL_GetTicks();
     activated = true;
 }
 
@@ -66,6 +68,7 @@ bool LoadingView::updateWorld(){
     if(!activated) return false;
     SDL_Delay(15);
     static int counting;
+    if(SDL_GetTicks() - begtime > 5000) return false;
     if (!counting) loadingWheel.angle += 30.f;
     counting = ++counting % 5;
     return !done;
@@ -77,9 +80,11 @@ WelcomeView::WelcomeView(EventController* controller)
 }
 
 WelcomeView::~WelcomeView(){
+    SDL_DestroyTexture(screen);
 }
 
 bool WelcomeView::activate(){
+    views.push_back(std::make_shared<LoadingView>(myController));
     myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
 }
 
@@ -93,4 +98,78 @@ bool WelcomeView::drawWorld(){
 }
 
 bool WelcomeView::deactivate(){
+}
+
+CurLocationView::CurLocationView(EventController* controller)
+: myController(controller), screen(loadImage("screen2.png"))
+{
+    int w,h;
+    SDL_GetWindowSize(window, &w, &h);
+    textBox.position = {w/8, 5*h/8, 3*w/4, h/16};
+    textBox.box = loadImage("textBox.png");
+    textBox.font = TTF_OpenFont("Font.otf", h/32);
+}
+
+CurLocationView::~CurLocationView(){
+    SDL_DestroyTexture(screen);
+}
+
+bool CurLocationView::activate(){
+    views.push_back(std::make_shared<DestLocationView>(myController));
+
+    myEvents.push_back(std::make_shared<InputEventProcessor>(myController, &textBox));
+    myEvents.push_back(std::make_shared<EditEventProcessor>(myController, &textBox));
+    myEvents.push_back(std::make_shared<InFDownEventProcesor>(myController, &textBox));
+    myEvents.push_back(std::make_shared<InKeyEventProcessor>(myController, &textBox));
+    myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
+}
+
+bool CurLocationView::updateWorld(){
+    return !done;
+}
+
+bool CurLocationView::drawWorld(){
+    SDL_RenderCopy(renderer,screen,nullptr,nullptr);
+    textBox.draw();
+
+    return !done;
+}
+
+bool CurLocationView::deactivate(){
+}
+
+DestLocationView::DestLocationView(EventController* controller)
+: myController(controller), screen(loadImage("screen3.png"))
+{
+    int w,h;
+    SDL_GetWindowSize(window, &w, &h);
+    textBox.position = {w/8, 5*h/8, 3*w/4, h/16};
+    textBox.box = loadImage("textBox.png");
+    textBox.font = TTF_OpenFont("Font.otf", h/32);
+}
+
+DestLocationView::~DestLocationView(){
+    SDL_DestroyTexture(screen);
+}
+
+bool DestLocationView::activate(){
+    myEvents.push_back(std::make_shared<InputEventProcessor>(myController, &textBox));
+    myEvents.push_back(std::make_shared<EditEventProcessor>(myController, &textBox));
+    myEvents.push_back(std::make_shared<InFDownEventProcesor>(myController, &textBox));
+    myEvents.push_back(std::make_shared<InKeyEventProcessor>(myController, &textBox));
+    myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
+}
+
+bool DestLocationView::updateWorld(){
+    return !done;
+}
+
+bool DestLocationView::drawWorld(){
+    SDL_RenderCopy(renderer,screen,nullptr,nullptr);
+    textBox.draw();
+
+    return !done;
+}
+
+bool DestLocationView::deactivate(){
 }

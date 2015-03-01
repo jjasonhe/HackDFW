@@ -1,7 +1,7 @@
 #include <cmath>
 
 //#include "SDL2_gfxPrimitives.h"
-#include "SDL_image.h"
+#include "SDL_image.h"d
 #include "SDL_ttf.h"
 
 #include "GUI.h"
@@ -22,8 +22,12 @@ bool InputBox::draw(){
     SDL_GetWindowSize(window, &w, &h);
     if(position.x + position.w < 0 || position.x > w) return false;
 
-    SDL_SetRenderDrawColor(renderer, background.r, background.g, background.b, background.a);
-    SDL_RenderFillRect(renderer, &position);
+    if(box)
+        SDL_RenderCopy(renderer, box, nullptr, &position);
+    else{
+        SDL_SetRenderDrawColor(renderer, background.r, background.g, background.b, background.a);
+        SDL_RenderFillRect(renderer, &position);
+    }
 
     if(font){
         SDL_Surface *surf = TTF_RenderText_Blended(font, (text + composition).c_str(), textcolor);
@@ -33,7 +37,7 @@ bool InputBox::draw(){
             if(texture){
                 int iW, iH;
                 SDL_QueryTexture(texture, nullptr, nullptr, &iW, &iH);
-                SDL_Rect destRect = {position.x, position.y, std::min(iW, position.w), std::min(iH, position.h)};
+                SDL_Rect destRect = {position.x + position.w/16, position.y, std::min(iW, position.w), std::min(iH, position.h)};
                 SDL_Rect srcRect = {0, 0, std::min(iW, position.w), std::min(iH, position.h)};
                 SDL_RenderCopy(renderer, texture, &srcRect, &destRect);
                 SDL_DestroyTexture(texture);

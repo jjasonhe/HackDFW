@@ -403,6 +403,22 @@ TimeSpentView::TimeSpentView(EventController* controller)
     textBox.position = {w/8, h/2, 3*w/4, h/16};
     textBox.box = loadImage("textBox.png");
     textBox.font = TTF_OpenFont("Font.otf", h/32);
+
+    textBox.position = {13*w/24, 541*h/1280, w/4, 7*h/50};
+    textBox.box = loadImage("textBox.png");
+    textBox.font = TTF_OpenFont("Font.otf", h/32);
+
+    textBox.position = {23*w/36, 3*h/5, w/4, 7*h/50};
+    textBox.box = loadImage("textBox.png");
+    textBox.font = TTF_OpenFont("Font.otf", h/32);
+
+    textBox.position = {3*w/8, 18*h/25, w/4, 7*h/50};
+    textBox.box = loadImage("textBox.png");
+    textBox.font = TTF_OpenFont("Font.otf", h/32);
+
+    textBox.position = {w/9, 3*h/5, w/4, 7*h/50};
+    textBox.box = loadImage("textBox.png");
+    textBox.font = TTF_OpenFont("Font.otf", h/32);
 }
 
 TimeSpentView::~TimeSpentView(){

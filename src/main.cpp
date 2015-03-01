@@ -41,6 +41,7 @@ std::string start;
 std::string dest;
 int lastmove;
 bool loading=false;
+Json::Value flightValues;
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, void* stream){
     size_t written;
@@ -71,7 +72,7 @@ int loadFlights(void* data){
     Json::Value source = codeFromString(start);
 
     HTTPRequest req("https://api.test.sabre.com/v1/shop/flights/fares");
-    req.addURI("origin", source);
+    req.addURI("origin", source[0].asString());
     req.addURI("earliestdeparturedate", "2015-03-02");
     req.addURI("latestdeparturedate", "2015-03-05");
     req.addURI("lengthofstay", "5");
@@ -82,7 +83,7 @@ int loadFlights(void* data){
     req.sendRequest((std::string(pref_path)+"/flights.json").c_str());
 
     Json::Reader reader;
-    ifstream d(std::string(pref_path)+"/flights.json");
+    std::ifstream d(std::string(pref_path)+"/flights.json");
     reader.parse(d, flightValues);
     loading=false;
     return 0;

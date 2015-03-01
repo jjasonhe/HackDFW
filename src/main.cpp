@@ -40,6 +40,7 @@ Json::Value flights;
 std::string start;
 std::string dest;
 int lastmove;
+bool loading=false;
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, void* stream){
     size_t written;
@@ -65,10 +66,26 @@ Json::Value codeFromString(std::string name){
     return retValue;
 }
 
-int loadAirport(void* data){
-    Json::Value dests = codeFromString(dest), source = codeFromString(start);
+int loadFlights(void* data){
+    loading = true;
+    Json::Value source = codeFromString(start);
 
-    HTTPRequest req("");
+    HTTPRequest req("https://api.test.sabre.com/v1/shop/flights/fares");
+    req.addURI("origin", source);
+    req.addURI("earliestdeparturedate", "2015-03-02");
+    req.addURI("latestdeparturedate", "2015-03-05");
+    req.addURI("lengthofstay", "5");
+    req.addURI("theme", dest);
+    req.addURI("topdestinations", "15");
+    req.addURI("pointofsalecountry", "US");
+    req.setHeader("Authorization: Bearer Shared/IDL:IceSess\/SessMgr:1\.0.IDL/Common/!ICESMS\/ACPCRTD!ICESMSLB\/CRT.LB!-0123456789012345678!123456!0!ABCDEFGHIJKLM!E2E-1");
+    req.sendRequest((std::string(pref_path)+"/flights.json").c_str());
+
+    Json::Reader reader;
+    ifstream d(std::string(pref_path)+"/flights.json");
+    reader.parse(d, flightValues);
+    loading=false;
+    return 0;
 }
 
 SDL_Texture* loadImage(const char* path){

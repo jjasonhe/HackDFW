@@ -14,6 +14,7 @@ protected:
     std::map<std::string, std::string> uris;
     std::vector<std::string> cookies;
     std::string url;
+    std::string ourHeader;
 
 public:
     std::string host;
@@ -26,6 +27,10 @@ public:
 
     void addCookie(std::string cookie){
         cookies.push_back(cookie);
+    }
+
+    void setHeader(std::string header){
+        ourHeader=header;
     }
 
     void sendRequest(const char* outfile){
@@ -52,6 +57,11 @@ public:
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
             curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
             curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+            struct curl_slist *slist = nullptr;
+            if(!ourHeader.empty()){
+                slist = curl_slist_append(slist, ourHeader.c_str());
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
+            }
 
             if(outfile){
                 fp = fopen(outfile,"wb");
@@ -60,6 +70,9 @@ public:
             }
             curl_easy_perform(curl);
             curl_easy_cleanup(curl);
+            if(!ourHeader.empty()){
+                curl_slist_free_all(slist);
+            }
             if(outfile) fclose(fp);
         }
     }

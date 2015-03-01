@@ -69,7 +69,7 @@ bool LoadingView::updateWorld(){
     if(!activated) return false;
     SDL_Delay(15);
     static int counting;
-    if(SDL_GetTicks() - begtime > 2500) return false;
+    if(!loading) return false;
     if (!counting) loadingWheel.angle += 30.f;
     counting = ++counting % 5;
     return !done;

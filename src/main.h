@@ -29,6 +29,7 @@ extern std::string xClassPath;
 extern Json::Value flights;
 extern std::string start;
 extern std::string dest;
+extern bool loading;
 
 template <class T>
 struct callReturn{

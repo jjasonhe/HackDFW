@@ -44,7 +44,7 @@ public:
 class FlightView : public View{
 protected:
     EventController* myController;
-    SelectionBox destination, departureDate, returnDate, price, nonstop;
+    SelectionBox submit, destination, departureDate, returnDate, price, nonstop;
     SDL_Texture* screen;
 
 public:

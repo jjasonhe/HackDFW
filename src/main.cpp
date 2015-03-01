@@ -44,6 +44,7 @@ bool loading=false;
 Json::Value flightValues;
 Json::Value weatherValues;
 Json::Value flightValue;
+std::string numDays;
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, void* stream){
     size_t written;
@@ -133,7 +134,7 @@ int loadFlights(void* data){
         req.addURI("origin", source[i].asString());
         req.addURI("earliestdeparturedate", "2015-03-02");
         req.addURI("latestdeparturedate", "2015-03-06");
-        req.addURI("lengthofstay", "5");
+        req.addURI("lengthofstay", numDays);
         req.addURI("theme", dest);
         req.addURI("topdestinations", Json::valueToString(30/source.size()));
         req.addURI("pointofsalecountry", "US");

@@ -33,6 +33,7 @@ extern bool loading;
 extern Json::Value flightValues;
 extern Json::Value weatherValues;
 extern Json::Value flightValue;
+extern std::string numDays;
 
 template <class T>
 struct callReturn{

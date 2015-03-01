@@ -72,7 +72,7 @@ bool LoadingView::updateWorld(){
     if(!activated) return false;
     SDL_Delay(15);
     static int counting;
-    if(!loading) return false;
+    if(!loading) done = true;
     if (!counting) loadingWheel.angle += 30.f;
     counting = ++counting % 5;
     return !done;
@@ -186,6 +186,7 @@ DestLocationView::~DestLocationView(){
 }
 
 bool DestLocationView::activate(){
+    views.push_back(std::make_shared<TimeSpentView>(myController));
     myEvents.push_back(std::make_shared<InputEventProcessor>(myController, &textBox));
     myEvents.push_back(std::make_shared<EditEventProcessor>(myController, &textBox));
     myEvents.push_back(std::make_shared<InFDownEventProcesor>(myController, &textBox));
@@ -298,6 +299,8 @@ FlightView::FlightView(EventController* controller)
     price.box = loadImage("regularPrice.png");
     nonstop.position = {0, 7*h/8, w/3, h/8};
     nonstop.box = loadImage("nonStop.png");
+    submit.position = {w/8, 3*h/4, 3*w/4, h/8};
+    submit.box = loadImage("startOver.png");
 }
 
 FlightView::~FlightView(){
@@ -305,7 +308,7 @@ FlightView::~FlightView(){
 }
 
 bool FlightView::activate(){
-    if(flightValues.size()) SDL_DetachThread(SDL_CreateThread(loadFlightDetails, "LoadFlightDetails", 0));
+    //if(flightValues.size()) SDL_DetachThread(SDL_CreateThread(loadFlightDetails, "LoadFlightDetails", 0));
     myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
 
     int w,h;
@@ -332,6 +335,7 @@ bool FlightView::activate(){
         tCard->price = tInt;
         cardList.elements.push_back(tCard);
     }
+    if(flightValues.empty()) screen = loadImage("oops.png");
     SDL_Rect tRect = {w/3, 3*h/8, 2*w/3, 5*h/8};
     myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &destination));
     myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &departureDate));
@@ -380,13 +384,19 @@ bool FlightView::updateWorld(){
 
 bool FlightView::drawWorld(){
     SDL_RenderCopy(renderer, screen, nullptr, nullptr);
-    cardList.draw();
+    if(flightValues["FareInfo"].empty()){
+        submit.draw();
+    }
+    else{
+        cardList.draw();
 
-    destination.draw();
-    departureDate.draw();
-    returnDate.draw();
-    price.draw();
-    nonstop.draw();
+        destination.draw();
+        departureDate.draw();
+        returnDate.draw();
+        price.draw();
+        nonstop.draw();
+    }
+
 
     return !done;
 }
@@ -396,29 +406,26 @@ bool FlightView::deactivate(){
 }
 
 TimeSpentView::TimeSpentView(EventController* controller)
-: myController(controller), screen(loadImage("screen2.png"))
+: myController(controller), screen(loadImage("screen5.png"))
 {
     int w,h;
     SDL_GetWindowSize(window, &w, &h);
-    textBox.position = {w/8, h/2, 3*w/4, h/16};
-    textBox.box = loadImage("textBox.png");
-    textBox.font = TTF_OpenFont("Font.otf", h/32);
-
-    textBox.position = {13*w/24, 541*h/1280, w/4, 7*h/50};
-    textBox.box = loadImage("textBox.png");
-    textBox.font = TTF_OpenFont("Font.otf", h/32);
-
-    textBox.position = {23*w/36, 3*h/5, w/4, 7*h/50};
-    textBox.box = loadImage("textBox.png");
-    textBox.font = TTF_OpenFont("Font.otf", h/32);
-
-    textBox.position = {3*w/8, 18*h/25, w/4, 7*h/50};
-    textBox.box = loadImage("textBox.png");
-    textBox.font = TTF_OpenFont("Font.otf", h/32);
-
-    textBox.position = {w/9, 3*h/5, w/4, 7*h/50};
-    textBox.box = loadImage("textBox.png");
-    textBox.font = TTF_OpenFont("Font.otf", h/32);
+    SelectionBox tBox;
+    tBox.position = {5*w/24, 541*h/1280, w/4, 7*h/50};
+    tBox.box = loadImage("1.png");
+    boxes.push_back(tBox);
+    tBox.position = {13*w/24, 541*h/1280, w/4, 7*h/50};
+    tBox.box = loadImage("2.png");
+    boxes.push_back(tBox);
+    tBox.position = {23*w/36, 3*h/5, w/4, 7*h/50};
+    tBox.box = loadImage("3.png");
+    boxes.push_back(tBox);
+    tBox.position = {3*w/8, 18*h/25, w/4, 7*h/50};
+    tBox.box = loadImage("4.png");
+    boxes.push_back(tBox);
+    tBox.position = {w/9, 3*h/5, w/4, 7*h/50};
+    tBox.box = loadImage("5.png");
+    boxes.push_back(tBox);
 }
 
 TimeSpentView::~TimeSpentView(){
@@ -428,10 +435,7 @@ TimeSpentView::~TimeSpentView(){
 bool TimeSpentView::activate(){
     views.push_back(std::make_shared<FlightView>(myController));
 
-    SelectionBox tBox;
-    tBox.position = {5*w/24, 541*h/1280, w/4, 7*h/50};
-    tBox.box = "1.png";
-    boxes.push_back(tBox);
+    for(auto& b : boxes) myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &b));
 
     myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
     myEvents.push_back(std::make_shared<SwipeDownEventProcesor>(myController, this));

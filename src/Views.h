@@ -84,6 +84,8 @@ protected:
     InputBox textBox;
     SDL_Texture* screen;
     SelectionBox submit;
+    std::vector<RadioButton> buttons;
+    int lastSel;
 
 public:
     DestLocationView(EventController* myController);

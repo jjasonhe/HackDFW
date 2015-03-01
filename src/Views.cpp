@@ -142,40 +142,35 @@ bool CurLocationView::deactivate(){
 }
 
 DestLocationView::DestLocationView(EventController* controller)
-: myController(controller), screen(loadImage("screen3.png"))
+: myController(controller), screen(loadImage("screen3.png")), lastSel(-1)
 {
     int w,h;
     SDL_GetWindowSize(window, &w, &h);
-    textBox.position = {w/8, h/2, 5*w/8, h/16};
-    textBox.box = loadImage("textBox.png");
-    textBox.font = TTF_OpenFont("Font.otf", h/32);
-    plusBox.box = loadImage("plus.png");
-    plusBox.position = {3*w/4, h/2, w/8, h/16};
-	Radiobutton tRbutton;
+	RadioButton tRButton;
 	tRButton.radio = loadImage ("radioUnselected.png");
-	tRButton.position = (w/8, h/2, 3*w/4, h/16);
-	tRButton.text = "Beaches";
+	tRButton.position = {w/8, h/2, 3*w/4, h/16};
+	tRButton.box = loadImage("Beaches");
 	buttons.push_back(tRButton);
-	tRButton.position = (w/8, 9*h/16, 3*w/4, h/16);
+	tRButton.position = {w/8, 9*h/16, 3*w/4, h/16};
 	tRButton.text = "Historic";
 	buttons.push_back(tRButton);
-	tRButton.position = (w/8, 10*h/16, 3*w/4, h/16);
+	tRButton.position = {w/8, 10*h/16, 3*w/4, h/16};
 	tRButton.text = "Theme-Parks";
 	buttons.push_back(tRButton);
-	tRButton.position = (w/8, 11*/16, 3*w/4, h/16);
+	tRButton.position = {w/8, 11*h/16, 3*w/4, h/16};
 	tRButton.text = "Skiing";
 	buttons.push_back(tRButton);
-	tRButton.position = (w/8, 12*h/16, 3*w/4, h/16);
+	tRButton.position = {w/8, 12*h/16, 3*w/4, h/16};
 	tRButton.text = "Outdoors";
 	buttons.push_back(tRButton);
-	tRButton.position = (w/8, 13*h/16, 3*w/4, h/16);
+	tRButton.position = {w/8, 13*h/16, 3*w/4, h/16};
 	tRButton.text = "Gambling";
 	buttons.push_back(tRButton);
-	tRButton.position = (w/8, 14*h/16, 3*w/4, h/16);
+	tRButton.position = {w/8, 14*h/16, 3*w/4, h/16};
 	tRButton.text = "Romantic";
 	buttons.push_back(tRButton);
 	submit.box = loadImage("submit.png");
-	submit.position = (w/8, 15*h/16, 3*w/4, h/16);
+	submit.position = {w/8, 15*h/16, 3*w/4, h/16};
 }
 
 DestLocationView::~DestLocationView(){
@@ -188,17 +183,44 @@ bool DestLocationView::activate(){
     myEvents.push_back(std::make_shared<InFDownEventProcesor>(myController, &textBox));
     myEvents.push_back(std::make_shared<InKeyEventProcessor>(myController, &textBox));
     myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
-    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &plusBox));
+    for(auto& r : buttons){
+        myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &r));
+    }
+    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &submit));
 }
 
 bool DestLocationView::updateWorld(){
-    return !done;
+    bool sel = false;
+    for(int i=0; i<buttons.size(); i++){
+        RadioButton r = buttons[i];
+        if (r.selected){
+            if(lastSel == -1){
+                lastSel = i;
+                SDL_DestroyTexture(buttons[i].box);
+                buttons[i].box = loadImage("radioSelected.png");
+            }
+            else if(lastSel != i){
+                buttons[lastSel].selected = false;
+                SDL_DestroyTexture(buttons[lastSel].box);
+                buttons[lastSel].box = loadImage("radioUnselected.png");
+                SDL_DestroyTexture(buttons[i].box);
+                buttons[i].box = loadImage("radioSelected.png");
+            }
+            sel = true;
+        }
+    }
+
+    return !(done || (sel && submit.selected));
 }
 
 bool DestLocationView::drawWorld(){
     SDL_RenderCopy(renderer,screen,nullptr,nullptr);
     textBox.draw();
-    plusBox.draw();
+    submit.draw();
+    for(auto& r : buttons) {
+        r.draw();
+    }
+
 
     return !done;
 }

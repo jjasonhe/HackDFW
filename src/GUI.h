@@ -160,13 +160,12 @@ public:
     }
 };
 
-class RadioButton : public GUIElement{
+class RadioButton : public SelectionBox{
 protected:
     SelectionBox radioBox;
     SelectionBox textBox;
 
 public:
-    std::string text;
     SDL_Texture* radio;
 
     bool draw();

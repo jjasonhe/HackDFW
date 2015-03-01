@@ -151,6 +151,31 @@ DestLocationView::DestLocationView(EventController* controller)
     textBox.font = TTF_OpenFont("Font.otf", h/32);
     plusBox.box = loadImage("plus.png");
     plusBox.position = {3*w/4, h/2, w/8, h/16};
+	Radiobutton tRbutton;
+	tRButton.radio = loadImage ("radioUnselected.png");
+	tRButton.position = (w/8, h/2, 3*w/4, h/16);
+	tRButton.text = "Beaches";
+	buttons.push_back(tRButton);
+	tRButton.position = (w/8, 9*h/16, 3*w/4, h/16);
+	tRButton.text = "Historic";
+	buttons.push_back(tRButton);
+	tRButton.position = (w/8, 10*h/16, 3*w/4, h/16);
+	tRButton.text = "Theme-Parks";
+	buttons.push_back(tRButton);
+	tRButton.position = (w/8, 11*/16, 3*w/4, h/16);
+	tRButton.text = "Skiing";
+	buttons.push_back(tRButton);
+	tRButton.position = (w/8, 12*h/16, 3*w/4, h/16);
+	tRButton.text = "Outdoors";
+	buttons.push_back(tRButton);
+	tRButton.position = (w/8, 13*h/16, 3*w/4, h/16);
+	tRButton.text = "Gambling";
+	buttons.push_back(tRButton);
+	tRButton.position = (w/8, 14*h/16, 3*w/4, h/16);
+	tRButton.text = "Romantic";
+	buttons.push_back(tRButton);
+	submit.box = loadImage("submit.png");
+	submit.position = (w/8, 15*h/16, 3*w/4, h/16);
 }
 
 DestLocationView::~DestLocationView(){

@@ -83,7 +83,7 @@ protected:
     EventController* myController;
     InputBox textBox;
     SDL_Texture* screen;
-    SelectionBox plusBox;
+    SelectionBox submit;
 
 public:
     DestLocationView(EventController* myController);

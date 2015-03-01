@@ -106,4 +106,20 @@ public:
     bool deactivate();
 };
 
+class TimeSpentView : public View{
+protected:
+    EventController* myController;
+    SDL_Texture* screen;
+    std::vector<SelectionBox> boxes;
+
+public:
+    TimeSpentView(EventController* myController);
+    ~TimeSpentView();
+
+    bool activate();
+    bool updateWorld();
+    bool drawWorld();
+    bool deactivate();
+};
+
 #endif // _VIEWS_H_

@@ -264,9 +264,7 @@ bool DestLocationView::deactivate(){
 				break;
 			}
 		}
-		if(dest.empty()) return false;
-		SDL_DetachThread(SDL_CreateThread(loadFlights, "LoadFlights", nullptr));
-		views.push_back(std::make_shared<FlightView>(myController));
+    if(dest.empty()) return false;
 }
 
 bool compareDest(FlightCard* a, FlightCard* b){
@@ -395,4 +393,53 @@ bool FlightView::drawWorld(){
 
 bool FlightView::deactivate(){
     for(auto& e : myEvents) e->deactivate();
+}
+
+TimeSpentView::TimeSpentView(EventController* controller)
+: myController(controller), screen(loadImage("screen2.png"))
+{
+    int w,h;
+    SDL_GetWindowSize(window, &w, &h);
+    textBox.position = {w/8, h/2, 3*w/4, h/16};
+    textBox.box = loadImage("textBox.png");
+    textBox.font = TTF_OpenFont("Font.otf", h/32);
+}
+
+TimeSpentView::~TimeSpentView(){
+    SDL_DestroyTexture(screen);
+}
+
+bool TimeSpentView::activate(){
+    views.push_back(std::make_shared<FlightView>(myController));
+
+    SelectionBox tBox;
+    tBox.position = {5*w/24, 541*h/1280, w/4, 7*h/50};
+    tBox.box = "1.png";
+    boxes.push_back(tBox);
+
+    myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
+    myEvents.push_back(std::make_shared<SwipeDownEventProcesor>(myController, this));
+}
+
+bool TimeSpentView::updateWorld(){
+    for(int i=0; i<5; i++)
+        if(boxes[i].selected)
+            return false;
+
+    return !done;
+}
+
+bool TimeSpentView::drawWorld(){
+    SDL_RenderCopy(renderer,screen,nullptr,nullptr);
+    for(auto& b : boxes) b.draw();
+
+    return !done;
+}
+
+bool TimeSpentView::deactivate(){
+    for(int i=0; i<5; i++)
+        if(boxes[i].selected)
+            numDays = Json::valueToString(i);
+
+    SDL_DetachThread(SDL_CreateThread(loadFlights, "LoadFlights", nullptr));
 }

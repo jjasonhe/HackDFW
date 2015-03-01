@@ -42,11 +42,52 @@ std::string dest;
 int lastmove;
 bool loading=false;
 Json::Value flightValues;
+Json::Value weatherValues;
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, void* stream){
     size_t written;
     written = fwrite(ptr, size, nmemb, (FILE*)stream);
     return written;
+}
+
+std::string space_to_underscore(std::string value){
+    for (size_t pos = value.find(' ');
+         pos != std::string::npos;
+         pos = value.find(' ', pos))
+    {
+        value.replace(pos, 1, "_");
+    }
+    return value;
+}
+
+
+Json::Value cityFromQuery(std::string query){
+    HTTPRequest req("http://autocomple.wunderground.com/aq");
+    req.addURI("query", query);
+    req.sendRequest((std::string(pref_path)+"/city.json").c_str());
+
+    Json::Reader reader;
+    std::ifstream d(std::string(pref_path)+"/city.json");
+    Json::Value retValue;
+    reader.parse(d, retValue);
+
+    return retValue;
+}
+
+int loadWeather(void* data){
+    Json::Value location = cityFromQuery(*(std::string*)data);
+    std::string tLocation = location["name"];
+    int pos = tLocation.find(',');
+    std::string city = tLocation.substr(0, pos);
+    std::string state = tLocation.substr(pos+1, std::string::npos);
+
+    HTTPRequest req(std::string("http://api.wunderground.com/api/b5a7e5f9aa745e7a/forecast/q/")
+                                + state + '/' + space_to_underscore(city) + ".json");
+    req.sendRequest((std::string(pref_path) + "/weather.json").c_str());
+
+    Json::Reader reader;
+    std::ifstream d(std::string(pref_path)+"/weather.json");
+    reader.parse(d, weatherValues);
 }
 
 Json::Value codeFromString(std::string name){

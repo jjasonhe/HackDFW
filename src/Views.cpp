@@ -1,8 +1,10 @@
+#include <algorithm>
+#include <memory>
+
 #include "Views.h"
 #include "Events.h"
 #include "main.h"
 #include "SDL_image.h"
-#include <memory>
 
 Sprite LoadSprite(const char* file, SDL_Renderer* renderer)
 {
@@ -261,4 +263,20 @@ bool DestLocationView::deactivate(){
 				break;
 			}
 		}
+}
+
+bool compareDest(FlightCard a, FlightCard b){
+    return a.dest < b.dest;
+}
+
+bool compareDepartDate(FlightCard a, FlightCard b){
+    return a.date < b.date;
+}
+
+bool comparePriceNonStop(FlightCard a, FlightCard b){
+    return a.nonStop < b.nonStop;
+}
+
+bool comparePrice(FlightCard a, FlightCard b){
+    return a.price < b.price;
 }

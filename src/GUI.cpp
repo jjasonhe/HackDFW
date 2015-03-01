@@ -93,6 +93,7 @@ bool RadioButton::draw(){
     textBox.text = text;
     if(!textBox.font) textBox.font = TTF_OpenFont("Font.otf", position.h/2);
     textBox.position = {position.x + position.w/4, position.y, 3*position.w/4, position.h};
+    textBox.box = box;
 
     radioBox.draw();
     textBox.draw();

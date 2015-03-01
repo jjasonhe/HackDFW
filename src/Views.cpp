@@ -149,7 +149,7 @@ DestLocationView::DestLocationView(EventController* controller)
 	RadioButton tRButton;
 	tRButton.radio = loadImage ("radioUnselected.png");
 	tRButton.position = {w/8, h/2, 3*w/4, h/16};
-	tRButton.box = loadImage("Beaches");
+	tRButton.text = "Beaches";
 	buttons.push_back(tRButton);
 	tRButton.position = {w/8, 9*h/16, 3*w/4, h/16};
 	tRButton.text = "Historic";

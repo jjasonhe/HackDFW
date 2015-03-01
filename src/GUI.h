@@ -160,6 +160,18 @@ public:
     }
 };
 
+class RadioButton : public GUIElement{
+protected:
+    SelectionBox radioBox;
+    SelectionBox textBox;
+
+public:
+    std::string text;
+    SDL_Texture* radio;
+
+    bool draw();
+};
+
 class HList : public GUIElement{
 protected:
 

@@ -37,7 +37,7 @@ bool InputBox::draw(){
             if(texture){
                 int iW, iH;
                 SDL_QueryTexture(texture, nullptr, nullptr, &iW, &iH);
-                SDL_Rect destRect = {position.x + position.w/16, position.y, std::min(iW, position.w), std::min(iH, position.h)};
+                SDL_Rect destRect = {position.x + position.w/16, position.y + (position.h - iH)/2, std::min(iW, position.w), std::min(iH, position.h)};
                 SDL_Rect srcRect = {0, 0, std::min(iW, position.w), std::min(iH, position.h)};
                 SDL_RenderCopy(renderer, texture, &srcRect, &destRect);
                 SDL_DestroyTexture(texture);
@@ -85,6 +85,17 @@ bool SelectionBox::draw(){
     if(tb){
         textPos.w = textPos.h = 0;
     }
+}
+
+bool RadioButton::draw(){
+    radioBox.box = radio;
+    radioBox.position = {position.x, position.y, position.w/4, position.h};
+    textBox.text = text;
+    if(!textBox.font) textBox.font = TTF_OpenFont("Font.otf", position.h/2);
+    textBox.position = {position.x + position.w/4, position.y, 3*position.w/4, position.h};
+
+    radioBox.draw();
+    textBox.draw();
 }
 
 template<class T>

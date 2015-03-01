@@ -68,7 +68,7 @@ bool LoadingView::updateWorld(){
     if(!activated) return false;
     SDL_Delay(15);
     static int counting;
-    if(SDL_GetTicks() - begtime > 5000) return false;
+    if(SDL_GetTicks() - begtime > 1000) return false;
     if (!counting) loadingWheel.angle += 30.f;
     counting = ++counting % 5;
     return !done;
@@ -105,7 +105,7 @@ CurLocationView::CurLocationView(EventController* controller)
 {
     int w,h;
     SDL_GetWindowSize(window, &w, &h);
-    textBox.position = {w/8, 5*h/8, 3*w/4, h/16};
+    textBox.position = {w/8, h/2, 3*w/4, h/16};
     textBox.box = loadImage("textBox.png");
     textBox.font = TTF_OpenFont("Font.otf", h/32);
 }
@@ -143,7 +143,7 @@ DestLocationView::DestLocationView(EventController* controller)
 {
     int w,h;
     SDL_GetWindowSize(window, &w, &h);
-    textBox.position = {w/8, 5*h/8, 3*w/4, h/16};
+    textBox.position = {w/8, h/2, 3*w/4, h/16};
     textBox.box = loadImage("textBox.png");
     textBox.font = TTF_OpenFont("Font.otf", h/32);
 }

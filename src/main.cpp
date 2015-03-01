@@ -35,6 +35,9 @@ EventController overlayController;
 std::string uid;
 std::string xClassPath = "com/myapp/game/MyGame";
 
+int loadAirport(void* data){
+}
+
 SDL_Texture* loadImage(const char* path){
     SDL_Surface* tSurf = IMG_Load(path);
 

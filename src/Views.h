@@ -44,7 +44,7 @@ public:
 class FlightView : public View{
 protected:
     EventController* myController;
-    SelectionBox submit, destination, departureDate, returnDate, price, nonstop;
+    SelectionBox submit, depFrom, destination, departureDate, returnDate, price, nonstop;
     SDL_Texture* screen;
 
 public:
@@ -60,6 +60,12 @@ public:
 };
 
 class InfoView : public View{
+protected:
+    EventController* myController;
+    SelectionBox fctext, icon, departTime, arrivalTime, layover, timezones, flightNumbers;
+    SDL_Texture* screen;
+
+public:
     InfoView(EventController* controller);
     ~InfoView();
 

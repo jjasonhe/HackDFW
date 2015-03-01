@@ -223,12 +223,13 @@ bool DestLocationView::updateWorld(){
         }
     }
 
-    return !(done || (sel && submit.selected));
+    return !done;
+    //return !(done || (sel && submit.selected));
 }
 
 bool DestLocationView::drawWorld(){
     SDL_RenderCopy(renderer,screen,nullptr,nullptr);
-    submit.draw();
+    //submit.draw();
     for(auto& r : buttons) {
         r.draw();
     }
@@ -276,6 +277,10 @@ bool compareDepartDate(FlightCard* a, FlightCard* b){
     return a->date < b->date;
 }
 
+bool compareDepart(FlightCard* a, FlightCard* b){
+    return a->depFrom < b->depFrom;
+}
+
 bool comparePriceNonStop(FlightCard* a, FlightCard* b){
     return a->nonStop < b->nonStop;
 }
@@ -289,6 +294,8 @@ FlightView::FlightView(EventController* controller)
 {
     int w,h;
     SDL_GetWindowSize(window, &w, &h);
+    depFrom.position = {0, h/4, w/3, h/8};
+    depFrom.box = loadImage("departing.png");
     destination.position = {0, 3*h/8, w/3, h/8};
     destination.box = loadImage("Destination.png");
     departureDate.position = {0, h/2, w/3, h/8};
@@ -318,7 +325,8 @@ bool FlightView::activate(){
     for(int i=0; i<flightValues["FareInfo"].size(); i++){
         FlightCard* tCard = new FlightCard;
         tCard->font = tFont;
-        tCard->position = {w/3 + i*w, 3*h/8, 2*w/3, 5*h/8};
+        tCard->position = {w/3 + i*w, h/4, 2*w/3, 3*h/4};
+        tCard->depFrom = cityFromCode(flightValues["FareInfo"][i]["OriginLocation"].asString());
         tCard->dest = cityFromCode(flightValues["FareInfo"][i]["DestinationLocation"].asString());
         std::string tDate = flightValues["FareInfo"][i]["DepartureDateTime"].asString();
         int pos = tDate.find("T");
@@ -334,9 +342,14 @@ bool FlightView::activate(){
         e >> tInt;
         tCard->price = tInt;
         cardList.elements.push_back(tCard);
+        myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, tCard));
     }
-    if(flightValues.empty()) screen = loadImage("oops.png");
+    if(flightValues["FareInfo"].empty()){
+        screen = loadImage("oops.png");
+        myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &submit));
+    }
     SDL_Rect tRect = {w/3, 3*h/8, 2*w/3, 5*h/8};
+    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &depFrom));
     myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &destination));
     myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &departureDate));
     myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &returnDate));
@@ -348,10 +361,18 @@ bool FlightView::activate(){
 }
 
 bool FlightView::updateWorld(){
-   // if(cardList.select >=0 && cardList.elements[cardList.select]->selected){
-   //     return false;
-        //Go to next screen
-    //}
+    for(int i=0; i < cardList.elements.size(); i++){
+        if(cardList.elements[i]->selected){
+            SDL_DetachThread(SDL_CreateThread(loadFlightDetails, "loadFlightDetails", (void*)i));
+            views.push_back(std::make_shared<InfoView>(myController));
+            return false;
+        }
+    }
+    if(depFrom.selected){
+        std::sort(cardList.elements.begin(), cardList.elements.end(), compareDepart);
+        cardList.select = 0;
+        depFrom.selected = false;
+    }
     if(departureDate.selected){
         std::sort(cardList.elements.begin(), cardList.elements.end(), compareDepartDate);
         cardList.select = 0;
@@ -378,7 +399,7 @@ bool FlightView::updateWorld(){
         nonstop.selected = false;
     }
 
-    return !done;
+    return !(done || submit.selected);
 
 }
 
@@ -390,6 +411,7 @@ bool FlightView::drawWorld(){
     else{
         cardList.draw();
 
+        depFrom.draw();
         destination.draw();
         departureDate.draw();
         returnDate.draw();
@@ -457,9 +479,104 @@ bool TimeSpentView::drawWorld(){
 }
 
 bool TimeSpentView::deactivate(){
+    SDL_DetachThread(SDL_CreateThread(loadFlights, "LoadFlights", nullptr));
     for(int i=0; i<5; i++)
         if(boxes[i].selected)
             numDays = Json::valueToString(i);
+}
 
-    SDL_DetachThread(SDL_CreateThread(loadFlights, "LoadFlights", nullptr));
+InfoView::InfoView(EventController* controller)
+: myController(controller), screen(loadImage("screen6.png"))
+{
+}
+
+InfoView::~InfoView(){
+    SDL_DestroyTexture(screen);
+}
+
+bool InfoView::activate(){
+    int w,h;
+    SDL_GetWindowSize(window, &w, &h);
+    views.push_back(std::make_shared<FlightView>(myController));
+
+    int layovers = flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"].size()/2;
+    int bad = 0;
+    if(layovers == 0) {
+            bad = 1;
+            layovers = 1;
+    }
+
+    std::string tString = cityFromCode(flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][layovers-1]["ArrivalAirport"]["LocationCode"].asString());
+    loadWeather(tString);
+    fctext.text = weatherValues["forecast"]["txt_forecast"]["forecastday"][0]["fcttext"].asString();
+    fctext.position = {w/3, 3*h/4, 43*w/72, 4*h/25};
+    fctext.font = TTF_OpenFont("Font.otf", h/32);
+    fctext.textColor = SDL_Color{0xFF, 0xFF, 0xFF, 0xFF};
+    fctext.drawBox = false;
+
+    icon.position = {5*w/72, 3*h/4, 13*w/50, 4*h/25};
+    icon.box = loadURLImage(weatherValues["forecast"]["txt_forecast"]["forecastday"][0]["icon_url"].asString(), std::string(pref_path) + weatherValues["forecast"]["txt_forecast"]["forecastday"][0]["icon"].asString());
+
+    departTime.position = {w/2, 3*h/8, w/2, 5*h/128};
+    departTime.text = flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][layovers-1]["DepartureDateTime"].asString();
+    std::replace(departTime.text.begin(), departTime.text.end(), 'T', '\n');
+    departTime.font = fctext.font;
+    departTime.textColor = fctext.textColor;
+    departTime.drawBox = false;
+
+    arrivalTime.position = {0, 3*h/8, 7*w/16, 4*h/25};
+    arrivalTime.text = flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][layovers-1]["ArrivalDateTime"].asString();
+    std::replace(arrivalTime.text.begin(), arrivalTime.text.end(), 'T', '\n');
+    arrivalTime.font = fctext.font;
+    arrivalTime.textColor = fctext.textColor;
+    arrivalTime.drawBox = false;
+
+    layover.position = {5*w/36, 9*h/16, 7*w/24, 5*h/128};
+    layover.text = Json::valueToString(layovers);
+    layover.font = fctext.font;
+    layover.textColor = fctext.textColor;
+    layover.drawBox = false;
+
+    timezones.position = {41*w/72, 9*h/16, 7*w/24, 5*h/128};
+    timezones.text = Json::valueToString(flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][layovers-1]["DepartureTimeZone"]["GMTOffset"].asInt() -
+                                         flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][layovers-1]["ArrivalTimeZone"]["GMTOffset"].asInt());
+    timezones.font = fctext.font;
+    timezones.textColor = fctext.textColor;
+    timezones.drawBox = false;
+
+    flightNumbers.position = {5*w/24, 23*h/128, 7*w/12, 13*h/128};
+    for(int i=0; i<2*layovers - bad; i++){
+        flightNumbers.text += flightValue["PricedItineraries"][0]["AirItinerary"]["OriginDestinationOptions"]["OriginDestinationOption"][0]["FlightSegment"][i]["FlightNumber"].asString() + ' ';
+    }
+    flightNumbers.font = fctext.font;
+    flightNumbers.textColor = fctext.textColor;
+    flightNumbers.drawBox = false;
+
+
+    //for(auto& b : boxes) myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &b));
+
+    myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
+    myEvents.push_back(std::make_shared<SwipeDownEventProcesor>(myController, this));
+}
+
+bool InfoView::updateWorld(){
+    return !done;
+}
+
+bool InfoView::drawWorld(){
+    SDL_RenderCopy(renderer,screen,nullptr,nullptr);
+
+    fctext.draw();
+    icon.draw();
+    departTime.draw();
+    arrivalTime.draw();
+    layover.draw();
+    timezones.draw();
+    flightNumbers.draw();
+
+
+    return !done;
+}
+
+bool InfoView::deactivate(){
 }

@@ -98,11 +98,13 @@ protected:
     SelectionBox destBox;
     SelectionBox nonStopBox;
     SelectionBox priceBox;
+    SelectionBox depFromBox;
 
 public:
     std::string dest;
     std::string date;
     std::string retDate;
+    std::string depFrom;
     int nonStop;
     int price;
 

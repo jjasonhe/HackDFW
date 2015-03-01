@@ -46,6 +46,7 @@ public:
             temppath = temppath.substr(0, temppath.size()-1);
         }
         temppath = url_encode(temppath);
+        SDL_Log(temppath.c_str());
         CURL *curl;
         curl = curl_easy_init();
         if (curl) {

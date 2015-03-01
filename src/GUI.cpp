@@ -109,27 +109,37 @@ bool FlightCard::draw(){
     SDL_SetRenderDrawColor(renderer, 0x18, 0x5C, 0x83, 0xFF);
     SDL_RenderFillRect(renderer, &position);
 
-    destBox.position = {position.x, position.y, position.w, position.h/5};
+    depFromBox.position = {position.x, position.y, position.w, position.h/6};
+    depFromBox.text = depFrom;
+    depFromBox.font = font;
+    depFromBox.drawBox = false;
+    depFromBox.draw();
+
+    destBox.position = {position.x, position.y + position.h/6, position.w, position.h/6};
     destBox.text = dest;
     destBox.font = font;
     destBox.drawBox = false;
     destBox.draw();
-    dateBox.position = {position.x, position.y + position.h/5, position.w, position.h/5};
+
+    dateBox.position = {position.x, position.y + position.h/3, position.w, position.h/5};
     dateBox.text = date;
     dateBox.font = font;
     dateBox.drawBox = false;
     dateBox.draw();
-    retDateBox.position = {position.x, position.y + 2*position.h/5, position.w, position.h/5};
+
+    retDateBox.position = {position.x, position.y + position.h/2, position.w, position.h/5};
     retDateBox.text = retDate;
     retDateBox.font = font;
     retDateBox.drawBox = false;
     retDateBox.draw();
-    priceBox.position = {position.x, position.y + 3*position.h/5, position.w, position.h/5};
+
+    priceBox.position = {position.x, position.y + 2*position.h/3, position.w, position.h/5};
     priceBox.text = Json::valueToString(price);
     priceBox.font = font;
     priceBox.drawBox = false;
     priceBox.draw();
-    nonStopBox.position = {position.x, position.y + 4*position.h/5, position.w, position.h/5};
+
+    nonStopBox.position = {position.x, position.y + 5*position.h/6, position.w, position.h/5};
     nonStopBox.text = Json::valueToString(nonStop);
     if(nonStop == 0) nonStopBox.text = "N/A";
     nonStopBox.font = font;

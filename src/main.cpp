@@ -64,8 +64,8 @@ std::string space_to_underscore(std::string value){
 
 
 Json::Value cityFromQuery(std::string query){
-    HTTPRequest req("http://autocomple.wunderground.com/aq");
-    req.addURI("query", query);
+    HTTPRequest req("http://autocomplete.wunderground.com/aq");
+    req.addURI("query", query.substr(0,10));
     req.sendRequest((std::string(pref_path)+"/city.json").c_str());
 
     Json::Reader reader;
@@ -76,12 +76,14 @@ Json::Value cityFromQuery(std::string query){
     return retValue;
 }
 
-int loadWeather(void* data){
+int loadWeather(std::string xlocation){
     loading = true;
-    Json::Value location = cityFromQuery(*(std::string*)data);
-    std::string tLocation = location["name"].asString();
-    int pos = tLocation.find(',');
-    std::string city = tLocation.substr(0, pos);
+    Json::Value location = cityFromQuery(xlocation);
+    std::string tLocation = location["RESULTS"][0]["name"].asString();
+    int pos = tLocation.find(', ');
+    SDL_Log("String: %s", tLocation.c_str());
+    SDL_Log("Length: %d, Pos: %d", tLocation.size(), pos);
+    std::string city = tLocation.substr(0, pos-1);
     std::string state = tLocation.substr(pos+1, std::string::npos);
 
     HTTPRequest req(std::string("http://api.wunderground.com/api/b5a7e5f9aa745e7a/forecast/q/")
@@ -136,7 +138,7 @@ int loadFlights(void* data){
         req.addURI("latestdeparturedate", "2015-03-06");
         req.addURI("lengthofstay", numDays);
         req.addURI("theme", dest);
-        req.addURI("topdestinations", Json::valueToString(30/source.size()));
+        req.addURI("topdestinations", Json::valueToString(15/source.size()));
         req.addURI("pointofsalecountry", "US");
         req.setHeader("Authorization: Bearer Shared/IDL:IceSess\/SessMgr:1\.0.IDL/Common/!ICESMS\/ACPCRTD!ICESMSLB\/CRT.LB!-0123456789012345678!123456!0!ABCDEFGHIJKLM!E2E-1");
         req.sendRequest((std::string(pref_path)+"/flights.json").c_str());
@@ -146,7 +148,8 @@ int loadFlights(void* data){
         std::ifstream d(std::string(pref_path)+"/flights.json");
         reader.parse(d, tempValue);
         for(int j=0; j<tempValue["FareInfo"].size(); j++){
-            flightValues["FareInfo"][k++] = tempValue["FareInfo"][j];
+            flightValues["FareInfo"][k] = tempValue["FareInfo"][j];
+            flightValues["FareInfo"][k++]["OriginLocation"] = tempValue["OriginLocation"];
         }
     }
     loading=false;
@@ -194,6 +197,18 @@ std::string to_string(T value)
     std::ostringstream os ;
     os << value ;
     return os.str() ;
+}
+
+SDL_Texture* loadURLImage(std::string url, std::string cacheFile){
+    if(!fileExists(cacheFile)){
+        HTTPRequest req(url);
+        req.sendRequest(cacheFile.c_str());
+    }
+    SDL_Surface* t = IMG_Load_RW(SDL_RWFromFile(cacheFile.c_str(), "rb"), 1);
+    SDL_Texture* t2 = SDL_CreateTextureFromSurface(renderer, t);
+    SDL_FreeSurface(t);
+
+    return t2;
 }
 
 #ifdef __ANDROID_API__

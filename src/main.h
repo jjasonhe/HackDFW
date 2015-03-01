@@ -49,8 +49,18 @@ bool enclosedPoint(SDL_Point &point, SDL_Rect &rect);
 std::string getUID();
 template<typename T> std::string to_string(T value);
 int loadFlights(void* data);
-int loadWeather(void* data);
+int loadWeather(std::string location );
 int loadFlightDetails(void* data);
 std::string cityFromCode(std::string code);
+SDL_Texture* loadURLImage(std::string url, std::string cacheFile);
+
+inline bool fileExists(const std::string& name) {
+    if (FILE *file = fopen(name.c_str(), "r")) {
+        fclose(file);
+        return true;
+    } else {
+        return false;
+    }
+}
 
 #endif // _MAIN_H_

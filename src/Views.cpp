@@ -233,8 +233,30 @@ bool DestLocationView::drawWorld(){
 
 bool DestLocationView::deactivate(){
     SDL_StopTextInput();
-    for(auto& r : buttons){
-        if (r.selected)
-            dest = r.text;
-    }
+    for(int i=0; i<buttons.size(); i++)
+		if(buttons[i].selected){
+			switch(i){
+			case 0:
+				dest = "BEACH";
+				break;
+			case 1:
+				dest = "HISTORIC";
+				break;
+			case 2:
+				dest = "THEME-PARK";
+				break;
+			case 3:
+				dest = "SKIING";
+				break;
+			case 4: 
+				dest = "OUTDOORS";
+				break;
+			case 5: 
+				dest = "GAMBLING";
+				break;
+			case 6:
+				dest = "ROMANTIC";
+				break;
+			}
+		}
 }

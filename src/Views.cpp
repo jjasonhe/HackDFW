@@ -142,32 +142,33 @@ bool CurLocationView::deactivate(){
 }
 
 DestLocationView::DestLocationView(EventController* controller)
-: myController(controller), screen(loadImage("screen3.png")), lastSel(-1)
+: myController(controller), screen(loadImage("screen3.png")), lastSel(-1), unselected(loadImage("radioUnselected.png")),
+  selected(loadImage("radioSelected.png"))
 {
     int w,h;
     SDL_GetWindowSize(window, &w, &h);
 	RadioButton tRButton;
-	tRButton.radio = loadImage ("radioUnselected.png");
+	tRButton.radio = unselected;
 	tRButton.position = {w/8, h/2, 3*w/4, h/16};
-	tRButton.text = "Beaches";
+	tRButton.box = loadImage("Beaches.png");
 	buttons.push_back(tRButton);
 	tRButton.position = {w/8, 9*h/16, 3*w/4, h/16};
-	tRButton.text = "Historic";
+	tRButton.box = loadImage("Historic.png");
 	buttons.push_back(tRButton);
 	tRButton.position = {w/8, 10*h/16, 3*w/4, h/16};
-	tRButton.text = "Theme-Parks";
+	tRButton.box = loadImage("Theme-Park.png");
 	buttons.push_back(tRButton);
 	tRButton.position = {w/8, 11*h/16, 3*w/4, h/16};
-	tRButton.text = "Skiing";
+	tRButton.box = loadImage("Skiing.png");
 	buttons.push_back(tRButton);
 	tRButton.position = {w/8, 12*h/16, 3*w/4, h/16};
-	tRButton.text = "Outdoors";
+	tRButton.box = loadImage("Outdoors.png");
 	buttons.push_back(tRButton);
 	tRButton.position = {w/8, 13*h/16, 3*w/4, h/16};
-	tRButton.text = "Gambling";
+	tRButton.box = loadImage("Gambling.png");
 	buttons.push_back(tRButton);
 	tRButton.position = {w/8, 14*h/16, 3*w/4, h/16};
-	tRButton.text = "Romantic";
+	tRButton.box = loadImage("Romantic.png");
 	buttons.push_back(tRButton);
 	submit.box = loadImage("submit.png");
 	submit.position = {w/8, 15*h/16, 3*w/4, h/16};
@@ -175,6 +176,8 @@ DestLocationView::DestLocationView(EventController* controller)
 
 DestLocationView::~DestLocationView(){
     SDL_DestroyTexture(screen);
+    SDL_DestroyTexture(selected);
+    SDL_DestroyTexture(unselected);
 }
 
 bool DestLocationView::activate(){
@@ -192,21 +195,24 @@ bool DestLocationView::activate(){
 bool DestLocationView::updateWorld(){
     bool sel = false;
     for(int i=0; i<buttons.size(); i++){
-        RadioButton r = buttons[i];
-        if (r.selected){
+        if (buttons[i].selected){
             if(lastSel == -1){
                 lastSel = i;
-                SDL_DestroyTexture(buttons[i].box);
-                buttons[i].box = loadImage("radioSelected.png");
+                //SDL_DestroyTexture(buttons[i].radio);
+                buttons[i].radio = selected;
             }
             else if(lastSel != i){
                 buttons[lastSel].selected = false;
-                SDL_DestroyTexture(buttons[lastSel].box);
-                buttons[lastSel].box = loadImage("radioUnselected.png");
-                SDL_DestroyTexture(buttons[i].box);
-                buttons[i].box = loadImage("radioSelected.png");
+                //SDL_DestroyTexture(buttons[lastSel].radio);
+                buttons[lastSel].radio = unselected;
+                //SDL_DestroyTexture(buttons[i].radio);
+                buttons[i].radio = selected;
+                lastSel = i;
             }
             sel = true;
+        }
+        else{
+            buttons[i].radio = unselected;
         }
     }
 

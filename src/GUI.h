@@ -64,100 +64,20 @@ public:
 
     SelectionBox()
     : boxColor{0xA0, 0xA0, 0xA0, 0xFF}, textColor{0xFF, 0xFF, 0xFF, 0xFF},
-    text(""), selected(false), box(nullptr), drawBox(true), centered(false), textPos{0,0,0,0}
+    font(nullptr), text(""), selected(false), box(nullptr), drawBox(true), centered(false), textPos{0,0,0,0}
     {
         int w, h;
         SDL_GetWindowSize(window, &w, &h);
-        font = TTF_OpenFont(std::string("rimouski.ttf").c_str(), h/32);
     }
 
-    ~SelectionBox() {
-        TTF_CloseFont(font);
-        if(box) SDL_DestroyTexture(box);
-        box = nullptr;
-        font = nullptr;
-    }
-
-    virtual bool draw();
-};
-
-class Card : public SelectionBox{
-public:
-    SDL_Texture* face, *gBorder;
-    bool drawCard, border;
-    std::string replaceText;
-    int faceSize;
-
-    Card() : face(nullptr), drawCard(true), border(true), gBorder(loadImage("gBorder.png")), faceSize(0) {}
-
-    virtual bool draw();
-
-    virtual ~Card(){
-        if(font) TTF_CloseFont(font);
-        if(box) SDL_DestroyTexture(box);
-        if(face) SDL_DestroyTexture(face);
-        box = nullptr;
-        font = nullptr;
-        face = nullptr;
-    }
-};
-
-class Toggle : public SelectionBox{
-public:
-    std::string text2;
-    SDL_Color toggleColor;
-    SDL_Texture *back;
-
-    Toggle() : text2(""), toggleColor{0x30, 0x30, 0xC0}, back(nullptr) {}
-
-    virtual bool draw();
-
-    virtual ~Toggle(){
-        TTF_CloseFont(font);
-        if(box) SDL_DestroyTexture(box);
-        if(back) SDL_DestroyTexture(back);
-        back = nullptr;
-        box = nullptr;
-        font = nullptr;
-    }
-};
-
-class JudgePos : public SelectionBox{
-public:
-    SelectionBox* ourCard;
-    SDL_Texture* renderTex, *fade, *gBorder;
-
-    JudgePos() : ourCard(nullptr), fade(loadImage("fade.png")), gBorder(loadImage("gBorder.png")) {
-        boxColor = {0x82, 0x82, 0x82, 0xFF};
-        int w, h;
-        SDL_GetWindowSize(window, &w, &h);
-        renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h/8);
+    virtual ~SelectionBox() {
+        //if(font) TTF_CloseFont(font);
+        //if(box) SDL_DestroyTexture(box);
+        //box = nullptr;
+        //font = nullptr;
     }
 
     virtual bool draw();
-};
-
-class Game : public SelectionBox{
-public:
-    SDL_Texture *face, *ymove, *wBorder;
-    int expiryTime, pos;
-
-    Game() : expiryTime(0), face(nullptr), ymove(nullptr), wBorder(loadImage("wBorder.png")) {
-        int w, h;
-        SDL_GetWindowSize(window, &w, &h);
-        font = TTF_OpenFont(std::string("rimouski.ttf").c_str(), 9*h/256);
-    }
-
-    virtual bool draw();
-
-    virtual ~Game(){
-        TTF_CloseFont(font);
-        if(box) SDL_DestroyTexture(box);
-        if(face) SDL_DestroyTexture(face);
-        face = nullptr;
-        box = nullptr;
-        font = nullptr;
-    }
 };
 
 class RadioButton : public SelectionBox{

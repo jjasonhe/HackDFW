@@ -89,7 +89,7 @@ bool SelectionBox::draw(){
 
 bool RadioButton::draw(){
     radioBox.box = radio;
-    radioBox.position = {position.x, position.y, position.w/4, position.h};
+    radioBox.position = {position.x, position.y, position.h, position.h};
     textBox.text = text;
     if(!textBox.font) textBox.font = TTF_OpenFont("Font.otf", position.h/2);
     textBox.position = {position.x + position.w/4, position.y, 3*position.w/4, position.h};

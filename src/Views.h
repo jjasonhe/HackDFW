@@ -86,6 +86,8 @@ protected:
     SelectionBox submit;
     std::vector<RadioButton> buttons;
     int lastSel;
+    SDL_Texture* selected;
+    SDL_Texture* unselected;
 
 public:
     DestLocationView(EventController* myController);

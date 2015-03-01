@@ -42,9 +42,16 @@ public:
 };
 
 class FlightView : public View{
+protected:
+    EventController* myController;
+    SelectionBox destination, departureDate, returnDate, price, nonstop;
+    SDL_Texture* screen;
+
 public:
-    FlightView();
+    FlightView(EventController* controller);
     ~FlightView();
+
+    HList cardList;
 
     bool activate();
     bool updateWorld();
@@ -53,7 +60,7 @@ public:
 };
 
 class InfoView : public View{
-    InfoView();
+    InfoView(EventController* controller);
     ~InfoView();
 
     bool activate();

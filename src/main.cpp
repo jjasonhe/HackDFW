@@ -43,6 +43,7 @@ int lastmove;
 bool loading=false;
 Json::Value flightValues;
 Json::Value weatherValues;
+Json::Value flightValue;
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, void* stream){
     size_t written;
@@ -75,8 +76,9 @@ Json::Value cityFromQuery(std::string query){
 }
 
 int loadWeather(void* data){
+    loading = true;
     Json::Value location = cityFromQuery(*(std::string*)data);
-    std::string tLocation = location["name"];
+    std::string tLocation = location["name"].asString();
     int pos = tLocation.find(',');
     std::string city = tLocation.substr(0, pos);
     std::string state = tLocation.substr(pos+1, std::string::npos);
@@ -88,6 +90,7 @@ int loadWeather(void* data){
     Json::Reader reader;
     std::ifstream d(std::string(pref_path)+"/weather.json");
     reader.parse(d, weatherValues);
+    loading = false;
 }
 
 Json::Value codeFromString(std::string name){
@@ -108,26 +111,62 @@ Json::Value codeFromString(std::string name){
     return retValue;
 }
 
+std::string cityFromCode(std::string code){
+    HTTPRequest req(std::string("http://airportcode.riobard.com/airport/") + code);
+    req.addURI("fmt", "JSON");
+    req.sendRequest((std::string(pref_path)+"/airport.json").c_str());
+
+    Json::Reader reader;
+    std::ifstream d(std::string(pref_path)+"/airport.json");
+    Json::Value retValue, loadValue;
+    reader.parse(d, loadValue);
+
+    return loadValue["location"].asString() + " (" + code + ')';
+}
+
 int loadFlights(void* data){
     loading = true;
     Json::Value source = codeFromString(start);
+    int k=0;
+    for(int i=0; i<source.size(); i++){
+        HTTPRequest req("https://api.test.sabre.com/v1/shop/flights/fares");
+        req.addURI("origin", source[i].asString());
+        req.addURI("earliestdeparturedate", "2015-03-02");
+        req.addURI("latestdeparturedate", "2015-03-06");
+        req.addURI("lengthofstay", "5");
+        req.addURI("theme", dest);
+        req.addURI("topdestinations", Json::valueToString(30/source.size()));
+        req.addURI("pointofsalecountry", "US");
+        req.setHeader("Authorization: Bearer Shared/IDL:IceSess\/SessMgr:1\.0.IDL/Common/!ICESMS\/ACPCRTD!ICESMSLB\/CRT.LB!-0123456789012345678!123456!0!ABCDEFGHIJKLM!E2E-1");
+        req.sendRequest((std::string(pref_path)+"/flights.json").c_str());
 
-    HTTPRequest req("https://api.test.sabre.com/v1/shop/flights/fares");
-    req.addURI("origin", source[0].asString());
-    req.addURI("earliestdeparturedate", "2015-03-02");
-    req.addURI("latestdeparturedate", "2015-03-06");
-    req.addURI("lengthofstay", "5");
-    req.addURI("theme", dest);
-    req.addURI("topdestinations", "25");
-    req.addURI("pointofsalecountry", "US");
-    req.setHeader("Authorization: Bearer Shared/IDL:IceSess\/SessMgr:1\.0.IDL/Common/!ICESMS\/ACPCRTD!ICESMSLB\/CRT.LB!-0123456789012345678!123456!0!ABCDEFGHIJKLM!E2E-1");
-    req.sendRequest((std::string(pref_path)+"/flights.json").c_str());
-
-    Json::Reader reader;
-    std::ifstream d(std::string(pref_path)+"/flights.json");
-    reader.parse(d, flightValues);
+        Json::Reader reader;
+        Json::Value tempValue;
+        std::ifstream d(std::string(pref_path)+"/flights.json");
+        reader.parse(d, tempValue);
+        for(int j=0; j<tempValue["FareInfo"].size(); j++){
+            flightValues["FareInfo"][k++] = tempValue["FareInfo"][j];
+        }
+    }
     loading=false;
     return 0;
+}
+
+int loadFlightDetails(void* data){
+    loading = true;
+
+    Json::Value flight = flightValues["FareInfo"][(int)data];
+
+    HTTPRequest req(flight["Links"][0]["href"].asString());
+    req.setHeader("Authorization: Bearer Shared/IDL:IceSess\/SessMgr:1\.0.IDL/Common/!ICESMS\/ACPCRTD!ICESMSLB\/CRT.LB!-0123456789012345678!123456!0!ABCDEFGHIJKLM!E2E-1");
+    req.sendRequest((std::string(pref_path)+"/flight.json").c_str());
+
+    Json::Reader reader;
+    Json::Value tempValue;
+    std::ifstream d(std::string(pref_path)+"/flight.json");
+    reader.parse(d, flightValue);
+
+    loading = false;
 }
 
 SDL_Texture* loadImage(const char* path){
@@ -232,7 +271,7 @@ int main(int argc, char *argv[])
 
 	int millis = SDL_GetTicks();
 	while(!views.empty()){
-        if(activated) views.push_front(std::make_shared<LoadingView>(&viewController));
+        if(loading) views.push_front(std::make_shared<LoadingView>(&viewController));
         if(!views[0]->activated) views[0]->activate();
         bool cont = true;
         while(cont){

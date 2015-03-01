@@ -88,6 +88,9 @@ bool SelectionBox::draw(){
 }
 
 bool RadioButton::draw(){
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    if(position.x + position.w < 0 || position.x > w) return false;
     radioBox.box = radio;
     radioBox.position = {position.x, position.y, position.h, position.h};
     textBox.text = text;
@@ -97,6 +100,41 @@ bool RadioButton::draw(){
 
     radioBox.draw();
     textBox.draw();
+}
+
+bool FlightCard::draw(){
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    if(position.x + position.w < 0 || position.x > w) return false;
+    SDL_SetRenderDrawColor(renderer, 0x18, 0x5C, 0x83, 0xFF);
+    SDL_RenderFillRect(renderer, &position);
+
+    destBox.position = {position.x, position.y, position.w, position.h/5};
+    destBox.text = dest;
+    destBox.font = font;
+    destBox.drawBox = false;
+    destBox.draw();
+    dateBox.position = {position.x, position.y + position.h/5, position.w, position.h/5};
+    dateBox.text = date;
+    dateBox.font = font;
+    dateBox.drawBox = false;
+    dateBox.draw();
+    retDateBox.position = {position.x, position.y + 2*position.h/5, position.w, position.h/5};
+    retDateBox.text = retDate;
+    retDateBox.font = font;
+    retDateBox.drawBox = false;
+    retDateBox.draw();
+    priceBox.position = {position.x, position.y + 3*position.h/5, position.w, position.h/5};
+    priceBox.text = Json::valueToString(price);
+    priceBox.font = font;
+    priceBox.drawBox = false;
+    priceBox.draw();
+    nonStopBox.position = {position.x, position.y + 4*position.h/5, position.w, position.h/5};
+    nonStopBox.text = Json::valueToString(nonStop);
+    if(nonStop == 0) nonStopBox.text = "N/A";
+    nonStopBox.font = font;
+    nonStopBox.drawBox = false;
+    nonStopBox.draw();
 }
 
 template<class T>
@@ -121,9 +159,9 @@ bool HList::moveElements(int aax, int aay){
     else select = (select < 0) ? 0 : ((select >= elements.size()) ? (elements.size() - 1) : select);
     int w , h;
     SDL_GetWindowSize(window, &w, &h);
-    int s = abs(elements[select]->position.x - (w - elements[select]->position.w)/2);
+    int s = abs(elements[select]->position.x - 2*w/3 + elements[select]->position.w/2);
     if(moveElement && !begin && snap){
-        int t = sgn(elements[select]->position.x - (w - elements[select]->position.w)/2)*std::min(12*(int)sqrt(s), s);
+        int t = sgn(elements[select]->position.x - 2*w/3 + elements[select]->position.w/2)*std::min(12*(int)sqrt(s), s);
         int w , h;
         SDL_GetWindowSize(window, &w, &h);
         if(!elements.empty()){

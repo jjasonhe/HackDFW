@@ -94,6 +94,7 @@ public:
 class FlightCard : public SelectionBox{
 protected:
     SelectionBox dateBox;
+    SelectionBox retDateBox;
     SelectionBox destBox;
     SelectionBox nonStopBox;
     SelectionBox priceBox;
@@ -101,6 +102,7 @@ protected:
 public:
     std::string dest;
     std::string date;
+    std::string retDate;
     int nonStop;
     int price;
 
@@ -112,7 +114,7 @@ protected:
 
 public:
     int select, lastmove;
-    std::vector<SelectionBox*> elements;
+    std::vector<FlightCard*> elements;
     float accel[2], vel[2];
     bool moveElement, begin, infinitescroll, snap;
 

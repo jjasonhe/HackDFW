@@ -31,6 +31,8 @@ extern std::string start;
 extern std::string dest;
 extern bool loading;
 extern Json::Value flightValues;
+extern Json::Value weatherValues;
+extern Json::Value flightValue;
 
 template <class T>
 struct callReturn{
@@ -45,5 +47,9 @@ SDL_Texture* loadImage(const char* path);
 bool enclosedPoint(SDL_Point &point, SDL_Rect &rect);
 std::string getUID();
 template<typename T> std::string to_string(T value);
+int loadFlights(void* data);
+int loadWeather(void* data);
+int loadFlightDetails(void* data);
+std::string cityFromCode(std::string code);
 
 #endif // _MAIN_H_

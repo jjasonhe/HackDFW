@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <memory>
+#include <sstream>
 
 #include "Views.h"
 #include "Events.h"
@@ -50,7 +51,7 @@ LoadingView::LoadingView(EventController* controller)
 }
 
 bool LoadingView::activate(){
-    views.push_back(std::make_shared<CurLocationView>(&viewController));
+    //views.push_back(std::make_shared<CurLocationView>(&viewController));
     begtime = SDL_GetTicks();
     activated = true;
 }
@@ -263,20 +264,135 @@ bool DestLocationView::deactivate(){
 				break;
 			}
 		}
+		if(dest.empty()) return false;
+		SDL_DetachThread(SDL_CreateThread(loadFlights, "LoadFlights", nullptr));
+		views.push_back(std::make_shared<FlightView>(myController));
 }
 
-bool compareDest(FlightCard a, FlightCard b){
-    return a.dest < b.dest;
+bool compareDest(FlightCard* a, FlightCard* b){
+    return a->dest < b->dest;
 }
 
-bool compareDepartDate(FlightCard a, FlightCard b){
-    return a.date < b.date;
+bool compareDepartDate(FlightCard* a, FlightCard* b){
+    return a->date < b->date;
 }
 
-bool comparePriceNonStop(FlightCard a, FlightCard b){
-    return a.nonStop < b.nonStop;
+bool comparePriceNonStop(FlightCard* a, FlightCard* b){
+    return a->nonStop < b->nonStop;
 }
 
-bool comparePrice(FlightCard a, FlightCard b){
-    return a.price < b.price;
+bool comparePrice(FlightCard* a, FlightCard* b){
+    return a->price < b->price;
+}
+
+FlightView::FlightView(EventController* controller)
+: myController(controller), screen(loadImage("screen4.png"))
+{
+    int w,h;
+    SDL_GetWindowSize(window, &w, &h);
+    destination.position = {0, 3*h/8, w/3, h/8};
+    destination.box = loadImage("Destination.png");
+    departureDate.position = {0, h/2, w/3, h/8};
+    departureDate.box = loadImage("departureDate.png");
+    returnDate.position = {0, 5*h/8, w/3, h/8};
+    returnDate.box = loadImage("returnDate.png");
+    price.position = {0, 3*h/4, w/3, h/8};
+    price.box = loadImage("regularPrice.png");
+    nonstop.position = {0, 7*h/8, w/3, h/8};
+    nonstop.box = loadImage("nonStop.png");
+}
+
+FlightView::~FlightView(){
+    SDL_DestroyTexture(screen);
+}
+
+bool FlightView::activate(){
+    if(flightValues.size()) SDL_DetachThread(SDL_CreateThread(loadFlightDetails, "LoadFlightDetails", 0));
+    myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
+
+    int w,h;
+    SDL_GetWindowSize(window, &w, &h);
+
+    TTF_Font* tFont = TTF_OpenFont("Font.otf", h/32);
+    for(int i=0; i<flightValues["FareInfo"].size(); i++){
+        FlightCard* tCard = new FlightCard;
+        tCard->font = tFont;
+        tCard->position = {w/3 + i*w, 3*h/8, 2*w/3, 5*h/8};
+        tCard->dest = cityFromCode(flightValues["FareInfo"][i]["DestinationLocation"].asString());
+        std::string tDate = flightValues["FareInfo"][i]["DepartureDateTime"].asString();
+        int pos = tDate.find("T");
+        tCard->date = tDate.substr(0, pos);
+        std::string tDate2 = flightValues["FareInfo"][i]["ReturnDateTime"].asString();
+        int pos2 = tDate2.find("T");
+        tCard->retDate = tDate2.substr(0, pos2);
+        std::istringstream d(flightValues["FareInfo"][i]["LowestNonStopFare"].asString());
+        int tInt;
+        d >> tInt;
+        tCard->nonStop = tInt;
+        std::istringstream e(flightValues["FareInfo"][i]["LowestFare"].asString());
+        e >> tInt;
+        tCard->price = tInt;
+        cardList.elements.push_back(tCard);
+    }
+    SDL_Rect tRect = {w/3, 3*h/8, 2*w/3, 5*h/8};
+    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &destination));
+    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &departureDate));
+    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &returnDate));
+    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &price));
+    myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &nonstop));
+    myEvents.push_back(std::make_shared<FMotionEventProcessor>(myController, this, tRect));
+
+    //views.push_back(std::make_shared<WelcomeView>(myController));
+}
+
+bool FlightView::updateWorld(){
+   // if(cardList.select >=0 && cardList.elements[cardList.select]->selected){
+   //     return false;
+        //Go to next screen
+    //}
+    if(departureDate.selected){
+        std::sort(cardList.elements.begin(), cardList.elements.end(), compareDepartDate);
+        cardList.select = 0;
+        departureDate.selected = false;
+    }
+    else if(destination.selected){
+        std::sort(cardList.elements.begin(), cardList.elements.end(), compareDest);
+        cardList.select = 0;
+        destination.selected = false;
+    }
+    else if(returnDate.selected){
+        std::sort(cardList.elements.begin(), cardList.elements.end(), compareDest);
+        cardList.select = 0;
+        returnDate.selected = false;
+    }
+    else if(price.selected){
+        std::sort(cardList.elements.begin(), cardList.elements.end(), comparePrice);
+        cardList.select = 0;
+        price.selected = false;
+    }
+    else if(nonstop.selected){
+        std::sort(cardList.elements.begin(), cardList.elements.end(), comparePriceNonStop);
+        cardList.select = 0;
+        nonstop.selected = false;
+    }
+
+    return !done;
+
+}
+
+bool FlightView::drawWorld(){
+    SDL_RenderCopy(renderer, screen, nullptr, nullptr);
+    cardList.draw();
+
+    destination.draw();
+    departureDate.draw();
+    returnDate.draw();
+    price.draw();
+    nonstop.draw();
+
+    return !done;
+}
+
+bool FlightView::deactivate(){
+    for(auto& e : myEvents) e->deactivate();
 }

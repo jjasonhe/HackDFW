@@ -124,6 +124,7 @@ bool CurLocationView::activate(){
     myEvents.push_back(std::make_shared<InFDownEventProcesor>(myController, &textBox));
     myEvents.push_back(std::make_shared<InKeyEventProcessor>(myController, &textBox));
     myEvents.push_back(std::make_shared<QuitKeyEventProcessor>(myController, this));
+    myEvents.push_back(std::make_shared<SwipeDownEventProcesor>(myController, this));
 }
 
 bool CurLocationView::updateWorld(){
@@ -191,6 +192,7 @@ bool DestLocationView::activate(){
         myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &r));
     }
     myEvents.push_back(std::make_shared<SelFDownEventProcesor>(myController, &submit));
+    myEvents.push_back(std::make_shared<SwipeDownEventProcesor>(myController, this));
 }
 
 bool DestLocationView::updateWorld(){
@@ -248,10 +250,10 @@ bool DestLocationView::deactivate(){
 			case 3:
 				dest = "SKIING";
 				break;
-			case 4: 
+			case 4:
 				dest = "OUTDOORS";
 				break;
-			case 5: 
+			case 5:
 				dest = "GAMBLING";
 				break;
 			case 6:

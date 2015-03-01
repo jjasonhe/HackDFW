@@ -191,6 +191,7 @@ int main(int argc, char *argv[])
 
 	int millis = SDL_GetTicks();
 	while(!views.empty()){
+        if(activated) views.push_front(std::make_shared<LoadingView>(&viewController));
         if(!views[0]->activated) views[0]->activate();
         bool cont = true;
         while(cont){
